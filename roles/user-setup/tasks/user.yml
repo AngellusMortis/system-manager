@@ -5,106 +5,125 @@
 - set_fact:
     user_configure_git: "{{ user_git_email != 'none' and user_git_name != 'none' }}"
     user_configure_signing: "{{ user_git_signing_key != 'none' }}"
-    user_powerline_prompt_bg_color: "{{ user_powerline_prompt_bg_colors[user_user] }}"
-    user_powerline_xonsh_prompt_bg_color: "{{ user_powerline_xonsh_prompt_bg_colors[user_user] }}"
+    user_powerline_prompt_bg_color: "{{ user_powerline_prompt_bg_colors[user_user['user']] }}"
+    user_powerline_xonsh_prompt_bg_color: "{{ user_powerline_xonsh_prompt_bg_colors[user_user['user']] }}"
     user_wsl_enable_gpg: "{{ wsl_npiperelay_path != 'none' and windows_gpg_agent_path != 'none' }}"
+    user_copy_gpg_pub_key_ring: "{{ user_gpg_public_key_ring != 'none' }}"
+    user_copy_authorized_keys: "{{ user_ssh_authorized_keys != 'none' }}"
 
 - name: Create user Directories
   file:
     path: "{{ item }}"
     recurse: true
     state: directory
-    owner: "{{ user_user }}"
-    group: "{{ user_user }}"
+    owner: "{{ user_user['user'] }}"
+    group: "{{ user_user['user'] }}"
   with_items:
-  - ~{{ user_user }}/.local
-  - ~{{ user_user }}/.ssh
+  - ~{{ user_user['user'] }}/.local
+  - ~{{ user_user['user'] }}/.ssh
+  - ~{{ user_user['user'] }}/.gnupg
 
 - name: Create powerline Directories
   file:
     path: "{{ item }}"
     recurse: true
     state: directory
-    owner: "{{ user_user }}"
-    group: "{{ user_user }}"
+    owner: "{{ user_user['user'] }}"
+    group: "{{ user_user['user'] }}"
   with_items:
-  - ~{{ user_user }}/.config/powerline/colorschemes/tmux
-  - ~{{ user_user }}/.config/powerline/colorschemes/shell
-  - ~{{ user_user }}/.config/powerline/themes/shell
+  - ~{{ user_user['user'] }}/.config/powerline/colorschemes/tmux
+  - ~{{ user_user['user'] }}/.config/powerline/colorschemes/shell
+  - ~{{ user_user['user'] }}/.config/powerline/themes/shell
   when: user_use_powerline|bool
 
 - name: Config git
   template:
     src: gitconfig.j2
-    dest: "~{{ user_user }}/.gitconfig"
-    owner: "{{ user_user }}"
-    group: "{{ user_user }}"
+    dest: "~{{ user_user['user'] }}/.gitconfig"
+    owner: "{{ user_user['user'] }}"
+    group: "{{ user_user['user'] }}"
   when: user_configure_git|bool
 
 - name: Copy tmux Configs
   template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
-    owner: "{{ user_user }}"
-    group: "{{ user_user }}"
+    owner: "{{ user_user['user'] }}"
+    group: "{{ user_user['user'] }}"
   with_items:
-    - { src: tmux.conf.j2, dest: "~{{ user_user }}/.tmux.conf" }
-    - { src: sshrc.sh.j2, dest: "~{{ user_user }}/.ssh/rc" }
-  when: user_use_tmux|bool
+    - { src: tmux.conf.j2, dest: "~{{ user_user['user'] }}/.tmux.conf" }
+    - { src: sshrc.sh.j2, dest: "~{{ user_user['user'] }}/.ssh/rc" }
+  when: user_user['use_tmux']|bool
 
 - name: Copy powerline Configs
   template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
-    owner: "{{ user_user }}"
-    group: "{{ user_user }}"
+    owner: "{{ user_user['user'] }}"
+    group: "{{ user_user['user'] }}"
   with_items:
-    - { src: powerline/config.json.j2, dest: "~{{ user_user }}/.config/powerline/config.json" }
-    - { src: powerline/shell.json.j2, dest: "~{{ user_user }}/.config/powerline/themes/shell/default.json" }
-    - { src: powerline/colors.json.j2, dest: "~{{ user_user }}/.config/powerline/colorschemes/shell/default.json" }
-    - { src: powerline/tmux-colors.json.j2, dest: "~{{ user_user }}/.config/powerline/colorschemes/tmux/default.json" }
+    - { src: powerline/config.json.j2, dest: "~{{ user_user['user'] }}/.config/powerline/config.json" }
+    - { src: powerline/shell.json.j2, dest: "~{{ user_user['user'] }}/.config/powerline/themes/shell/default.json" }
+    - { src: powerline/colors.json.j2, dest: "~{{ user_user['user'] }}/.config/powerline/colorschemes/shell/default.json" }
+    - { src: powerline/tmux-colors.json.j2, dest: "~{{ user_user['user'] }}/.config/powerline/colorschemes/tmux/default.json" }
   when: user_use_powerline|bool
 
 - name: Copy xonshrc
   template:
     src: shells/xonshrc.py.j2
-    dest: "~{{ user_user }}/.xonshrc"
-    owner: "{{ user_user }}"
-    group: "{{ user_user }}"
+    dest: "~{{ user_user['user'] }}/.xonshrc"
+    owner: "{{ user_user['user'] }}"
+    group: "{{ user_user['user'] }}"
   when: user_install_xonsh|bool
 
 - name: Copy zshrc
   template:
     src: shells/zshrc.sh.j2
-    dest: "~{{ user_user }}/.zshrc"
-    owner: "{{ user_user }}"
-    group: "{{ user_user }}"
+    dest: "~{{ user_user['user'] }}/.zshrc"
+    owner: "{{ user_user['user'] }}"
+    group: "{{ user_user['user'] }}"
   when: user_install_zsh|bool
 
 - name: Copy bash_profile
   copy:
-    dest: "~{{ user_user }}/.bash_profile"
+    dest: "~{{ user_user['user'] }}/.bash_profile"
     content: "[[ -r ~/.bashrc ]] && . ~/.bashrc\n"
-    owner: "{{ user_user }}"
-    group: "{{ user_user }}"
+    owner: "{{ user_user['user'] }}"
+    group: "{{ user_user['user'] }}"
   when: user_install_bash|bool
 
 - name: Copy bashrc
   template:
     src: shells/bashrc.sh.j2
-    dest: "~{{ user_user }}/.bashrc"
-    owner: "{{ user_user }}"
-    group: "{{ user_user }}"
+    dest: "~{{ user_user['user'] }}/.bashrc"
+    owner: "{{ user_user['user'] }}"
+    group: "{{ user_user['user'] }}"
   when: user_install_bash|bool
 
 - name: Set Shell zsh
   user:
-    name: "{{ user_user }}"
+    name: "{{ user_user['user'] }}"
     shell: /bin/zsh
   when: user_default_shell == "zsh"
 
 - name: Set Shell bash
   user:
-    name: "{{ user }}"
+    name: "{{ user_user['user'] }}"
     shell: /bin/bash
   when: user_default_shell == "bash"
+
+- name: Copy GPG Public Key Ring
+  copy:
+    src: "{{ user_gpg_public_key_ring }}"
+    dest: ~{{ user_user['user'] }}/.gnupg/pubring.kbx
+    owner: "{{ user_user['user'] }}"
+    group: "{{ user_user['user'] }}"
+  when: user_copy_gpg_pub_key_ring|bool
+
+- name: Copy SSH Authorized Keys
+  copy:
+    src: "{{ user_ssh_authorized_keys }}"
+    dest: ~{{ user_user['user'] }}/.ssh/authorized_keys
+    owner: "{{ user_user['user'] }}"
+    group: "{{ user_user['user'] }}"
+  when: user_copy_authorized_keys|bool

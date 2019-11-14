@@ -1,5 +1,7 @@
 pkg_name: none
 pkg_aur_name: none
+pkg_apt_name: none
 pkg_aur_builder: "{{ aur_builder }}"
 pkg_aur_user: "{{ aur_user }}"
 pkg_aur_path: "{{ ansible_env.PATH }}"
+pkg_install_both: false

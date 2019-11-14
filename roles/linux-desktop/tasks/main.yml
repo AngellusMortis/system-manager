@@ -1,0 +1,48 @@
+- name: Validate Display Manager
+  assert:
+    that: item in linux_desktop_supported_display_managers
+    msg: 'Supported Display Manangers: {{ linux_desktop_supported_display_managers }}'
+  with_items: "{{ linux_desktop_display_manager }}"
+
+- name: Validate Network Manager
+  assert:
+    that: item in linux_desktop_supported_networks
+    msg: 'Supported Network Managers: {{ linux_desktop_supported_networks }}'
+  with_items: "{{ linux_desktop_network }}"
+
+- name: Validate Desktop Environments
+  assert:
+    that: not item or item in linux_desktop_supported_environments
+    msg: 'Supported Desktop Environments: {{ linux_desktop_supported_environments }}'
+  with_items: "{{ linux_desktop_environments }}"
+
+- set_fact:
+    linux_desktop_install_kde: "{{ linux_desktop_environments and 'kde' in linux_desktop_environments }}"
+    linux_desktop_install_gnome: "{{ linux_desktop_environments and 'gnome' in linux_desktop_environments }}"
+    linux_desktop_install_gnome_ubuntu: "{{ linux_desktop_environments and 'gnome-ubuntu' in linux_desktop_environments }}"
+
+- name: Validate gnome-ubuntu
+  assert:
+    that: not linux_desktop_install_gnome_ubuntu|bool
+    msg: 'gnome-ubuntu only supported on Ubuntu'
+  when: not ansible_distribution in apt_distros
+
+- name: Install SDDM
+  include: display-managers/sddm.yml
+  when: linux_desktop_display_manager == 'sddm'
+
+- name: Install GDM
+  include: display-managers/gdm.yml
+  when: linux_desktop_display_manager == 'gdm'
+
+- name: Install Network Manager
+  include: networkmanager.yml
+  when: linux_desktop_network == 'networkmanager'
+
+- name: Install KDE
+  include: desktop-environments/kde.yml
+  when: linux_desktop_install_kde|bool
+
+- name: Install Gnome
+  include: desktop-environments/gnome.yml
+  when: linux_desktop_install_gnome|bool or linux_desktop_install_gnome_ubuntu|bool

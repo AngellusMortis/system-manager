@@ -9,8 +9,10 @@ user_supported_shells:
 user_default_shells:
   - bash
   - zsh
+  - none
 user_secondary_shells:
   - xonsh
+  - none
 user_users:
   - root
 user_git_email: none
@@ -21,3 +23,6 @@ user_use_powerline: false
 user_powerline_colorscheme: default
 user_powerline_prompt_bg_colors: { root: 'red' }
 user_powerline_xonsh_prompt_bg_colors: { root: 'RED' }
+user_gpg_public_key_ring: none
+user_ssh_authorized_keys: none
+user_configure_nvm: false

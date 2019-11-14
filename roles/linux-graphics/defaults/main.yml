@@ -1,0 +1,2 @@
+linux_graphics_install_intel_drivers: false
+linux_graphics_install_nvidia_drivers: false

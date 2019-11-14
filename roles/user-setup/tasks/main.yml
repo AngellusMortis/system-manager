@@ -1,14 +1,14 @@
-- set_fact:
-    user_has_secondary_shell: "{{ user_secondary_shell != 'none' }}"
-    user_install_xonsh: "{{ 'xonsh' in user_shells }}"
-    user_install_bash: "{{ 'bash' in user_shells }}"
-    user_install_zsh: "{{ 'zsh' in user_shells }}"
-
 - name: Validate shell type
   assert:
-    that: item in user_supported_shells
+    that: not item or item in user_supported_shells
     msg: 'Supported Shell types: {{ user_supported_shells }}'
   with_items: "{{ user_shells }}"
+
+- set_fact:
+    user_has_secondary_shell: "{{ user_secondary_shell != 'none' }}"
+    user_install_xonsh: "{{ user_shells and 'xonsh' in user_shells }}"
+    user_install_bash: "{{ user_shells and 'bash' in user_shells }}"
+    user_install_zsh: "{{ user_shells and 'zsh' in user_shells }}"
 
 - name: Validate default shell type
   assert:
@@ -32,19 +32,19 @@
   register: py_version
   changed_when: false
 
-- name: Set python_base (site-packages)
+- name: Set powerline_base (Arch)
   set_fact:
-    user_python_base: /usr/lib/python{{ py_version.stdout }}/site-packages
+    user_powerline_base: /usr/lib/python{{ py_version.stdout }}/site-packages/powerline
   when: ansible_distribution in pacman_distros
 
-- name: Set python_base (dist-packages)
+- name: Set powerline_base (Ubuntu)
   set_fact:
-    user_python_base: /usr/local/lib/python{{ py_version.stdout }}/dist-packages
+    user_powerline_base: /usr/share/powerline
   when: ansible_distribution in apt_distros
 
 - name: Print python_base
   debug:
-    msg: "{{ user_python_base }}"
+    msg: "{{ user_powerline_base }}"
     verbosity: 1
 
 - name: Install tmux
@@ -54,16 +54,19 @@
     pkg_name: tmux
   when: user_use_tmux|bool
 
-- name: Install powerline
+- name: Install powerline (package manager)
   include_role:
     name: pkg-install
   vars:
     pkg_name:
     - powerline
     - powerline-fonts
-  when: user_use_powerline|bool
+    pkg_apt_name:
+    - powerline
+  when:
+  - user_use_powerline|bool
 
-- name: Install xonsh
+- name: Install xonsh (package manager)
   include_role:
     name: pkg-install
   vars:
@@ -73,7 +76,22 @@
     - python-pygments
     - python-distro
     - python-setproctitle
+    pkg_apt_name:
+    - python3-prompt-toolkit
+    - python3-pygments
+    - python3-distro
+    - python3-setproctitle
   when: user_install_xonsh|bool
+
+- name: Install xonsh (pip)
+  pip:
+    name:
+        - xonsh
+    extra_args: --upgrade
+    executable: pip3
+  when:
+  - user_install_xonsh|bool
+  - ansible_distribution in apt_distros
 
 - name: Install xonsh extras
   pip:

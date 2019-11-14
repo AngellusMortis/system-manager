@@ -1,0 +1,36 @@
+- set_fact:
+    linux_desktop_sddm_service: "sddm"
+  when: not linux_desktop_display_manager_use_plymouth|bool
+
+- set_fact:
+    linux_desktop_sddm_service: "sddm-plymouth"
+  when: linux_desktop_display_manager_use_plymouth|bool
+
+- name: Enable SDDM Theme
+  template:
+    src: sddm/theme.conf.j2
+    dest: /etc/sddm.conf.d/theme.conf
+  when: linux_desktop_display_manager_theme != 'none'
+
+- name: systemd Enable SDDM
+  systemd:
+    name: "{{ linux_desktop_sddm_service }}"
+    daemon_reload: true
+    enabled: true
+    state: started
+
+- name: Make System Dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: true
+  with_items:
+    - /etc/sddm.conf.d/
+
+- name: Copy System Configs
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - { src: sddm/hide_aur.conf, dest: /etc/sddm.conf.d/hide_aur.conf }
+  when: ansible_distribution in pacman_distros

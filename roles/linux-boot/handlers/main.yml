@@ -1,0 +1,11 @@
+- name: regen grub (Arch)
+  command: grub-mkconfig -o /boot/grub/grub.cfg
+  when: ansible_distribution in pacman_distros
+
+- name: regen grub (Ubuntu)
+  command: update-grub
+  when: ansible_distribution in apt_distros
+
+- name: update plymouth (Arch)
+  command: plymouth-set-default-theme -R user-theme
+  when: ansible_distribution in pacman_distros

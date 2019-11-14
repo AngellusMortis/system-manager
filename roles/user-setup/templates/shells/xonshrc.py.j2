@@ -3,7 +3,7 @@ $LS_COLORS = 'rs=0:di=01;36:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;0
 $EDITOR = "vim"
 $VISUAL = "vim"
 $SHELL_TYPE = "prompt_toolkit"
-{% if user_use_tmux %}
+{% if user_user['use_tmux'] %}
 $SSH_AUTH_SOCK = $HOME + "/.ssh/ssh_auth_sock"
 {% endif %}
 
@@ -27,6 +27,17 @@ $PROJECT_DIRS = ["~/dev"]
 $MOUSE_SUPPORT = True
 # $XONSH_COLOR_STYLE = 'monokai'
 
+{% if user_configure_nvm %}
+# nvm does not work in Xonsh
+# Use bash or zsh instead
+# https://github.com/xonsh/xonsh/issues/3053
+# $NVM_DIR=$HOME + "/.nvm"
+# if !(test -f @($NVM_DIR+'/nvm.sh')):
+#     source-bash "$NVM_DIR/nvm.sh"
+#     source-bash "$NVM_DIR/bash_completion"
+$PATH.insert(0, '~/.nvm/current/bin')
+{% endif %}
+
 {% if user_use_powerline %}
 # powerline envs
 $PTK_STYLE_OVERRIDES['bottom-toolbar'] = 'noreverse'
@@ -47,7 +58,7 @@ $PL_COLORS = {
 }
 {% endif %}
 
-{% if user_use_tmux %}
+{% if user_user['use_tmux'] %}
 # tmux
 if not __xonsh__.env.get('USE_TMUX'):
     $USE_TMUX = True
@@ -93,7 +104,7 @@ xontrib load whole_word_jumping
 if !(test -f @($HOME+'/.local/xonshrc')):
     source $HOME/.local/xonshrc
 
-{% if user_use_tmux %}
+{% if user_user['use_tmux'] %}
 # auto-start tmux
 if $USE_TMUX:
     tmux-session;

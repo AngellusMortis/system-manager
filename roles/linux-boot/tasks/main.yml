@@ -1,0 +1,72 @@
+- name: Copy Grub Theme
+  copy:
+    src: "{{ linux_boot_grub_theme }}"
+    dest: /boot/grub/themes/user-theme
+  when: linux_boot_grub_theme != 'none'
+  notify:
+  - regen grub (Arch)
+  - regen grub (Ubuntu)
+
+- name: Copy Grub background
+  copy:
+    src: "{{ linux_boot_grub_background }}"
+    dest: /boot/grub/background.png
+  when: linux_boot_grub_background != 'none'
+  notify:
+  - regen grub (Arch)
+  - regen grub (Ubuntu)
+
+- name: Enable Grub Theme
+  lineinfile:
+    path: /etc/default/grub
+    regexp: '^GRUB_THEME='
+    line: GRUB_THEME=/boot/grub/themes/user-theme/theme.txt
+  when: linux_boot_grub_theme != 'none'
+  notify:
+  - regen grub (Arch)
+  - regen grub (Ubuntu)
+
+- name: Enable Grub background
+  lineinfile:
+    path: /etc/default/grub
+    regexp: '^GRUB_BACKGROUND='
+    line: GRUB_BACKGROUND="/boot/grub/background.png"
+  when: linux_boot_grub_background != 'none'
+  notify:
+  - regen grub (Arch)
+  - regen grub (Ubuntu)
+
+- name: Copy Plymouth Theme
+  copy:
+    src: "{{ linux_boot_plymouth_theme }}"
+    dest: /usr/share/plymouth/themes/user-theme
+  when: linux_boot_plymouth_theme != 'none'
+  notify: update plymouth (Arch)
+
+- name: Enable Plymouth Theme (Arch)
+  template:
+    src: plymouthd.conf.j2
+    dest: /etc/plymouth/plymouthd.conf
+  when:
+  - linux_boot_plymouth_theme != 'none'
+  - ansible_distribution in pacman_distros
+  notify: update plymouth (Arch)
+
+- name: Enable Plymouth Theme (Ubuntu)
+  alternatives:
+    name: default.plymouth
+    link: /usr/share/plymouth/themes/default.plymouth
+    path: /usr/share/plymouth/themes/user-theme/user-theme.plymouth
+    priority: 1000
+  when:
+  - ansible_distribution in apt_distros
+  - linux_boot_plymouth_theme != 'none'
+
+# https://wiki.archlinux.org/index.php/Silent_boot
+- name: Copy Slient Boot Configs
+  template:
+    src: sysctl.conf.j2
+    dest: /etc/sysctl.d/20-quiet-printk.conf
+  when:
+  - linux_boot_silent_boot|bool
+  - ansible_distribution in pacman_distros

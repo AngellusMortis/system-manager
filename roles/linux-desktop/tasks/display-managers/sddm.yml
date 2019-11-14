@@ -1,0 +1,50 @@
+- name: Install SDDM
+  include_role:
+    name: pkg-install
+  vars:
+    pkg_name:
+    - sddm
+    - sddm-kcm
+    pkg_apt_name:
+    - sddm
+
+- name: Copy SDDM Theme
+  copy:
+    src: "{{ linux_desktop_display_manager_theme }}"
+    dest: /usr/share/sddm/themes/user-theme
+  when: linux_desktop_display_manager_theme != 'none'
+
+- name: Copy SDDM User Icon
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  when: linux_desktop_display_manager_theme != 'none'
+  with_items:
+  - { src: "{{ linux_desktop_display_manager_user_icon }}", dest: "~{{ linux_desktop_user }}/.face.icon"}
+  - { src: "{{ linux_desktop_display_manager_user_icon }}", dest: "/var/lib/AccountsService/icons/{{ linux_desktop_user }}.face.icon"}
+
+- name: Grant user sddm to User Icon
+  acl:
+    path: "{{ item.path }}"
+    entity: sddm
+    etype: user
+    permissions: "{{ item.permissions }}"
+    state: present
+  with_items:
+  - { path: "~{{ linux_desktop_user }}", permissions: x }
+  - { path: "~{{ linux_desktop_user }}/.face.icon", permissions: r }
+  when: linux_desktop_display_manager_theme != 'none'
+
+- name: Enable Plymouth Theme (Ubuntu)
+  alternatives:
+    name: sddm-ubuntu-theme
+    link: /usr/share/sddm/themes/ubuntu-theme
+    path: /usr/share/sddm/themes/user-theme/
+    priority: 1000
+  when:
+  - ansible_distribution in apt_distros
+  - linux_desktop_display_manager_theme != 'none'
+
+- name: Configure SDDM (Arch)
+  include: display-managers/sddm-arch.yml
+  when: ansible_distribution in pacman_distros

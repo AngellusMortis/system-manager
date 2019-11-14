@@ -33,7 +33,7 @@ if [ "$USE_XONSH" = true ]; then
 fi
 {% endif %}
 
-{% if user_use_tmux %}
+{% if user_user['use_tmux'] %}
 # init tmux start variable
 if [ -z ${USE_TMUX+x} ]; then
     export USE_TMUX=true
@@ -45,7 +45,7 @@ export LS_COLORS='rs=0:di=01;36:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;
 export EDITOR='vim'
 export VISUAL='vim'
 export PATH=$HOME/.bin:$HOME/.local/bin:/usr/local/bin:$PATH
-{% if user_use_tmux %}
+{% if user_user['use_tmux'] %}
 export SSH_AUTH_SOCK=$HOME/.ssh/ssh_auth_sock
 {% endif %}
 
@@ -63,12 +63,18 @@ export LESS_TERMCAP_ue="\033[0m"         # end underline
 alias la='ls -la'
 alias reloadsh='source ~/.bashrc'
 
+{% if user_configure_nvm %}
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+{% endif %}
+
 {% if user_use_powerline %}
 # powerline envs
 powerline-daemon -q --replace
 POWERLINE_BASH_CONTINUATION=1
 POWERLINE_BASH_SELECT=1
-source {{ user_python_base }}/powerline/bindings/bash/powerline.sh
+source {{ user_powerline_base }}/bindings/bash/powerline.sh
 {% endif %}
 
 # load system specific local configs
@@ -76,7 +82,7 @@ if [ -r ~/.local/bashrc ]; then
     source ~/.local/bashrc
 fi
 
-{% if user_use_tmux %}
+{% if user_user['use_tmux'] %}
 # auto-start tmux
 if [ "$USE_TMUX" = true ]; then
     tmux-session

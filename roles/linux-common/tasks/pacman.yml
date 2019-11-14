@@ -80,7 +80,6 @@
   aur:
     use: "{{ aur_builder }}"
     upgrade: true
-  become: true
-  become_user: "{{ aur_user }}"
+  become: false
   environment:
     LANG: en_US.UTF-8

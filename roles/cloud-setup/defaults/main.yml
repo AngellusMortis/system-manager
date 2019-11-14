@@ -1,0 +1,3 @@
+cloud_supported_providers:
+- onedrive
+cloud_onedrive_sync_list: none

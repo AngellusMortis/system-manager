@@ -21,6 +21,10 @@
   import_tasks: pacman.yml
   when: ansible_distribution in pacman_distros
 
+- name: apt tasks
+  import_tasks: apt.yml
+  when: ansible_distribution in apt_distros
+
 # Common Developer packages
 - name: Install common utils
   include_role:
@@ -29,3 +33,6 @@
     pkg_name:
     - htop
     - git
+    - vim
+    - openconnect
+    - openvpn

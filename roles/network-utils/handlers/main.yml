@@ -1,0 +1,17 @@
+- name: restart sshd
+  systemd:
+    name: sshd.service
+    state: restarted
+  when: ansible_system == "Linux"
+
+- name: restart samba
+  systemd:
+    name: "{{ network_utils_smb_service }}"
+    state: restarted
+  when: ansible_system == "Linux"
+
+- name: restart iptables
+  systemd:
+    name: iptables
+    state: restarted
+  when: ansible_system == "Linux"

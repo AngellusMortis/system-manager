@@ -1,0 +1,23 @@
+- set_fact:
+    linux_desktop_gdm_service: "gdm"
+  when: not linux_desktop_display_manager_use_plymouth|bool
+
+- set_fact:
+    linux_desktop_gdm_service: "gdm-plymouth"
+  when: linux_desktop_display_manager_use_plymouth|bool
+
+- name: Install GDM
+  include_role:
+    name: pkg-install
+  vars:
+    pkg_name:
+    - gdm
+    pkg_apt_name:
+    - gdm3
+
+- name: systemd Enable GDM
+  systemd:
+    name: "{{ linux_desktop_gdm_service }}"
+    daemon_reload: true
+    enabled: true
+    state: started

@@ -5,31 +5,6 @@
     mode: 0555
   when: helper_x11_copy_script|bool
 
-- name: Enable X11 Fowarding
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    regexp: "{{ item.regexp }}"
-    line: "{{ item.line }}"
-    insertafter: "{{ item.insertafter }}"
-  with_items:
-    - {
-        regexp: "^X11Forwarding ",
-        line: "X11Forwarding yes",
-        insertafter: "#X11Forwarding ",
-      }
-    - {
-        regexp: "^X11UseLocalhost ",
-        line: "X11UseLocalhost no",
-        insertafter: "#X11UseLocalhost ",
-      }
-    - {
-        regexp: "^AcceptEnv ",
-        line: "AcceptEnv LANG LC_* USE_*",
-        insertafter: "#Banner ",
-      }
-  when: helper_x11_enable_forwarding|bool
-  notify: restart sshd
-
 - name: Copy Tmux Script
   template:
     src: tmux-session.sh.j2

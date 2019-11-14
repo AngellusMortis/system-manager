@@ -1,0 +1,24 @@
+- name: Install OneDrive
+  include_role:
+    name: pkg-install
+  vars:
+    pkg_name:
+    - onedrive
+    pkg_aur_name:
+    - onedrive-abraunegg-git
+
+- name: Make ~/.config/onedrive
+  file:
+    state: directory
+    path: ~{{ cloud_user }}/.config/onedrive
+    owner: "{{ cloud_user }}"
+    group: "{{ cloud_user }}"
+  when: cloud_configure_onedrive|bool
+
+- name: Copy onedrive sync_list
+  copy:
+    src: "{{ cloud_onedrive_sync_list }}"
+    dest: ~{{ cloud_user }}/.config/onedrive/sync_list
+    owner: "{{ cloud_user }}"
+    group: "{{ cloud_user }}"
+  when: cloud_configure_onedrive|bool

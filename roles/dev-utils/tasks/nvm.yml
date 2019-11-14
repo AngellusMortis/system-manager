@@ -1,0 +1,46 @@
+- name: Install nvm
+  shell: >
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
+  args:
+    creates: "~{{ dev_utils_dev_user }}/.nvm/nvm.sh"
+    warn: false
+
+- name: Install Latest LTS
+  shell: "source ~{{ dev_utils_dev_user }}/.nvm/nvm.sh && nvm install --lts"
+  environment:
+    NVM_DIR: '/home/{{ dev_utils_dev_user }}/.nvm'
+  register: nvm_install_lts
+  changed_when: "'Downloading and installing node' in nvm_install_lts.stdout"
+  args:
+    warn: false
+
+- name: Load Node versions
+  shell: "source ~{{ dev_utils_dev_user }}/.nvm/nvm.sh && nvm ls"
+  environment:
+    NVM_DIR: '/home/{{ dev_utils_dev_user }}/.nvm'
+  changed_when: false
+  ignore_errors:
+
+- name: Load lts/*
+  slurp:
+    src: "~{{ dev_utils_dev_user }}/.nvm/alias/lts/*"
+  register: lts_default_file
+
+- name: Get latest lts name
+  set_fact:
+    dev_utils_nvm_lts_name: "{{ lts_default_file['content'] | b64decode | trim }}"
+
+- name: Load latest lts
+  slurp:
+    src: "~{{ dev_utils_dev_user }}/.nvm/alias/{{ dev_utils_nvm_lts_name }}"
+  register: lts_latest_file
+
+- name: Get latest lts version
+  set_fact:
+    dev_utils_nvm_lts_version: "{{ lts_latest_file['content'] | b64decode | trim }}"
+
+- name: Create current Node symlink
+  file:
+    src: "~{{ dev_utils_dev_user }}/.nvm/versions/node/{{ dev_utils_nvm_lts_version }}/"
+    dest: "~{{ dev_utils_dev_user }}/.nvm/current"
+    state: link

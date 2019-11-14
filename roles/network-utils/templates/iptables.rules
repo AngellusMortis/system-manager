@@ -1,0 +1,40 @@
+*filter
+
+:INPUT DROP [0:0]
+:FORWARD DROP [13:416]
+:OUTPUT ACCEPT [164:14040]
+:TCP - [0:0]
+:UDP - [0:0]
+
+#### Setup
+
+## Keep maintain connections
+-A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+
+## Localhost
+-A INPUT -i lo -j ACCEPT
+
+# Whitelisted Networks
+{% for network in network_utils_whitelisted_networks %}
+-A INPUT -s {{ network }} -j ACCEPT
+{% endfor %}
+
+# Drop invalid requests
+-A INPUT -m conntrack --ctstate INVALID -j DROP
+
+## Ping
+-A INPUT -p icmp --icmp-type echo-request -m recent --name ping_limiter --set
+-A INPUT -p icmp --icmp-type echo-request -m recent --name ping_limiter --update --hitcount 6 --seconds 4 -j DROP
+-A INPUT -p icmp --icmp-type echo-request -j ACCEPT
+
+## TCP/UDP rules
+-A INPUT -p udp -m conntrack --ctstate NEW -j UDP
+-A INPUT -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -m conntrack --ctstate NEW -j TCP
+
+## Ports
+
+# Drop all others
+-A INPUT -p udp -j REJECT --reject-with icmp-port-unreachable
+-A INPUT -p tcp -j REJECT --reject-with tcp-rst
+
+COMMIT

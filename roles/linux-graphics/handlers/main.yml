@@ -1,0 +1,7 @@
+- name: regen mkinitcpio (Arch)
+  command: mkinitcpio -p linux
+  when: ansible_distribution in pacman_distros
+
+- name: regen mkinitcpio (Ubuntu)
+  command: update-initramfs -u
+  when: ansible_distribution in apt_distros

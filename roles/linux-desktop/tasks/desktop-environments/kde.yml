@@ -1,0 +1,51 @@
+- name: Install KDE
+  include_role:
+    name: pkg-install
+  vars:
+    pkg_name:
+    - xorg
+    - plasma
+    - kde-applications
+    - ttf-dejavu
+    - ttf-liberation
+    - plasma-wayland-session
+    pkg_apt_name:
+    - kde-full
+
+- name: Install KDE Network Manager
+  include_role:
+    name: pkg-install
+  vars:
+    pkg_name:
+    - plasma-nm
+  when:
+  - linux_desktop_network == 'networkmanager'
+  - ansible_distribution in pacman_distros
+
+- name: Make User Dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: true
+    owner: "{{ linux_desktop_user }}"
+    group: "{{ linux_desktop_user }}"
+  with_items:
+    - ~{{ linux_desktop_user }}/.config
+    - ~{{ linux_desktop_user }}/.local/share/konsole
+
+- name: Copy User Configs
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ linux_desktop_user }}"
+    group: "{{ linux_desktop_user }}"
+  with_items:
+    - { src: kde/konsole/profile.profile, dest: "~{{ linux_desktop_user }}/.local/share/konsole/Profile 1.profile" }
+    - { src: kde/konsole/rc, dest: "~{{ linux_desktop_user }}/.config/konsolerc" }
+    - { src: kde/kdesurc, dest: "~{{ linux_desktop_user }}/.config/kdesurc" }
+
+- name: Copy KDE Theme
+  copy:
+    src: "{{ linux_desktop_kde_theme }}"
+    dest: /usr/share/plasma/look-and-feel/user-theme
+  when: linux_desktop_kde_theme != 'none'

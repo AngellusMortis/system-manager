@@ -1,0 +1,43 @@
+- set_fact:
+    linux_desktop_config_nm: "{{ linux_desktop_network_manager_configs and linux_desktop_network_manager_configs != 'none' }}"
+
+- name: Install Network Manager
+  include_role:
+    name: pkg-install
+  vars:
+    pkg_name:
+    - networkmanager
+    - nm-connection-editor
+    - networkmanager-openvpn
+    - networkmanager-openconnect
+    pkg_apt_name:
+    - network-manager
+    - network-manager-openvpn
+    - network-manager-openconnect
+
+- name: systemd Enable Network Manager
+  systemd:
+    name: "{{ item }}"
+    daemon_reload: true
+    enabled: true
+    state: started
+  with_items:
+  - NetworkManager
+
+- name: Create Network Manger Dir
+  file:
+    path: /etc/NetworkManager/system-connections/
+    state: directory
+    recurse: true
+  when: linux_desktop_config_nm|bool
+
+- name: Copy NetworkManager configs
+  template:
+    src: "{{ item }}"
+    dest: "/etc/NetworkManager/system-connections/"
+    mode: 0600
+    owner: root
+    group: root
+  with_items: "{{ linux_desktop_network_manager_configs }}"
+  notify: restart NetworkManager
+  when: linux_desktop_config_nm|bool

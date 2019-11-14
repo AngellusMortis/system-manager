@@ -1,0 +1,33 @@
+- name: Install Gnome
+  include_role:
+    name: pkg-install
+  vars:
+    pkg_name:
+    - xorg
+    - gnome
+    - gnome-extra
+    - ttf-dejavu
+    - ttf-liberation
+    pkg_apt_name:
+    - gnome-session
+  when: linux_desktop_install_gnome|bool
+
+- name: Install Gnome (default Ubuntu)
+  include_role:
+    name: pkg-install
+  vars:
+    pkg_name:
+    - ubuntu-desktop
+  when: linux_desktop_install_gnome_ubuntu|bool
+
+- name: Install Gnome Network Manager
+  include_role:
+    name: pkg-install
+  vars:
+    pkg_name:
+    - network-manager-gnome
+    - network-manager-openvpn-gnome
+    - network-manager-openconnect-gnome
+  when:
+  - linux_desktop_network == 'networkmanager'
+  - ansible_distribution in apt_distros

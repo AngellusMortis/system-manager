@@ -1,0 +1,15 @@
+- name: apt Install Core
+  apt:
+    name:
+      - aptitude
+      - build-essential
+      - python3-pip
+      - python-apt
+    state: present
+
+- name: apt Upgrade
+  apt:
+    autoclean: true
+    autoremove: true
+    update_cache: true
+    upgrade: full

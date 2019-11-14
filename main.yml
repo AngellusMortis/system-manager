@@ -2,12 +2,17 @@
   hosts:
     - 127.0.0.1
   become: true
+  become_flags: "-E"
   vars:
     users_to_configure:
       - root
   pre_tasks:
     - set_fact:
-        users_to_configure: "{{ [ local_user ] }}"
+        install_extra_packages: "{{ pkg_name or pkg_aur_name }}"
+        install_both: "{{ pkg_name and pkg_aur_name }}"
+      tags: [ 'extra' ]
+    - set_fact:
+        users_to_configure: "{{ [ { 'user': local_user, 'use_tmux': use_tmux } ] }}"
         powerline_prompt_bg_colors: "{
           '{{ local_user }}': '{{ powerline_prompt_bg_color }}',
           'root': '{{ powerline_prompt_bg_color_root }}'
@@ -19,15 +24,23 @@
       tags: [ 'user' ]
 
     - set_fact:
-        users_to_configure: "{{ [ local_user ] + [ 'root' ] }}"
+        users_to_configure: "{{ users_to_configure + [ { 'user': 'root', 'use_tmux': false } ] }}"
       when: configure_root|bool
       tags: [ 'user' ]
+
+    - apt_repository:
+        repo: "{{ item }}"
+      with_items: "{{ extra_ppas }}"
+      when: ansible_distribution in apt_distros
+      tags: [ 'extra' ]
   roles:
-    - { role: linux-common, tags: [ 'core' ], when: ansible_system == "Linux" }
+    - { role: linux-common,
+        tags: [ 'core' ],
+        when: ansible_system == "Linux"
+      }
 
     - { role: helper-scripts,
         helper_x11_copy_script: "{{ x11_copy_script }}",
-        helper_x11_enable_forwarding: "{{ x11_enable_forwarding }}",
         helper_host_aliases: "{{ host_aliases }}",
         helper_gpg_local_agent: "{{ gpg_local_agent }}",
         helper_gpg_remote_agent: "{{ gpg_remote_agent }}",
@@ -49,5 +62,111 @@
         user_powerline_colorscheme: "{{ powerline_colorscheme }}",
         user_powerline_prompt_bg_colors: "{{ powerline_prompt_bg_colors }}",
         user_powerline_xonsh_prompt_bg_colors: "{{ powerline_xonsh_prompt_bg_colors }}",
+        user_gpg_public_key_ring: "{{ gpg_public_key_ring }}",
+        user_ssh_authorized_keys: "{{ ssh_authorized_keys }}",
+        user_configure_nvm: "{{ setup_nodejs }}",
         tags: [ 'user' ],
       }
+
+    - { role: cloud-setup,
+        cloud_provider: "{{ cloud_provider }}",
+        cloud_user: "{{ local_user }}",
+        cloud_onedrive_sync_list: "{{ onedrive_sync_list }}",
+        tags: [ 'user', 'cloud' ],
+      }
+
+    - {
+      role: linux-boot,
+      linux_boot_grub_theme: "{{ grub_theme }}",
+      linux_boot_plymouth_theme: "{{ plymouth_theme }}",
+      linux_boot_grub_background: "{{ grub_background }}",
+      tags: [ 'boot' ],
+    }
+
+    - { role: linux-graphics,
+        linux_graphics_install_intel_drivers: "{{ install_intel_drivers }}",
+        linux_graphics_install_nvidia_drivers: "{{ install_nvidia_drivers }}",
+        tags: [ 'desktop', 'graphics' ],
+        when: ansible_system == "Linux"
+      }
+
+    - { role: linux-desktop,
+        linux_desktop_user: "{{ local_user }}",
+        linux_desktop_network: "{{ desktop_network_manager }}",
+        linux_desktop_network_manager_configs: "{{ network_manager_configs }}",
+        linux_desktop_display_manager: "{{ desktop_display_manager }}",
+        linux_desktop_display_manager_use_plymouth: "{{ desktop_display_manager_use_plymouth }}",
+        linux_desktop_display_manager_theme: "{{ desktop_display_manager_theme }}",
+        linux_desktop_display_manager_user_icon: "{{ desktop_display_manager_user_icon }}",
+        linux_desktop_environments: "{{ desktop_environments }}",
+        linux_desktop_kde_theme: "{{ kde_theme }}",
+        tags: [ 'desktop' ],
+        when: ansible_system == "Linux"
+      }
+
+    - {
+      role: pkg-install,
+      pkg_name: "{{ extra_packages }}",
+      pkg_aur_name: "{{ extra_aur_packages }}",
+      pkg_install_both: "{{ install_both }}",
+      tags: [ 'extra' ],
+      when: install_extra_packages|bool
+    }
+
+    - {
+      role: network-utils,
+      network_utils_x11_enable_forwarding: "{{ x11_enable_forwarding }}",
+      network_utils_setup_sshd: "{{ setup_sshd }}",
+      network_utils_setup_samba: "{{ setup_samba }}",
+      network_utils_samba_config: "{{ samba_config }}",
+      network_utils_setup_iptables: "{{ setup_iptables }}",
+      network_utils_whitelisted_networks: "{{ iptables_whitelisted_networks }}",
+      tags: [ 'extra' ],
+    }
+
+    - {
+      role: dev-utils,
+      dev_utils_install_docker: "{{ setup_docker }}",
+      dev_utils_docker_config: "{{ docker_config }}",
+      dev_utils_extra_docker_host: "{{ extra_docker_host }}",
+      dev_utils_dev_user: "{{ local_user }}",
+      dev_utils_setup_nodejs: "{{ setup_nodejs }}",
+      dev_utils_setup_k8s: "{{ setup_k8s }}",
+      dev_utils_setup_gcloud: "{{ setup_gcloud }}",
+      tags: [ 'dev' ],
+    }
+  tasks:
+    - name: Clone git repos
+      git:
+        repo: "{{ item.url }}"
+        dest: "~{{ local_user }}/{{ item.dest }}"
+        version: "{{ item.branch }}"
+      with_items: "{{ git_repos }}"
+      tags: [ 'dev', 'extra' ]
+      become: false
+
+    - name: Create Extra User Dirs
+      file:
+        path: "~{{ local_user }}/{{ item }}"
+        state: directory
+        recurse: true
+        owner: "{{ local_user }}"
+        group: "{{ local_user }}"
+      with_items: "{{ extra_user_dirs }}"
+      tags: [ 'extra' ]
+
+    - name: Copy Extra User
+      copy:
+        src: "{{ item.src }}"
+        dest: "~{{ local_user }}/{{ item.dest }}"
+        owner: "{{ local_user }}"
+        group: "{{ local_user }}"
+      with_items: "{{ extra_user_files }}"
+      tags: [ 'extra' ]
+
+    - name: Copy Extra System
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+      with_items: "{{ extra_system_files }}"
+      tags: [ 'extra' ]

@@ -1,0 +1,4 @@
+linux_boot_grub_theme: none
+linux_boot_plymouth_theme: none
+linux_boot_silent_boot: true
+linux_boot_grub_background: none

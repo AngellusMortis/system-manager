@@ -1,0 +1,133 @@
+- name: Create System Config Dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: true
+  with_items:
+    - /etc/samba
+    - /etc/iptables
+
+# sshd
+- name: Install sshd
+  include_role:
+    name: pkg-install
+  vars:
+    pkg_name: openssh
+    pkg_apt_name: openssh-server
+  when: network_utils_setup_sshd|bool
+
+- name: systemd Enable sshd
+  systemd:
+    name: sshd
+    daemon_reload: true
+    enabled: true
+    state: started
+  when: network_utils_setup_sshd|bool
+
+- name: Lockdown sshd
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    insertafter: "{{ item.insertafter }}"
+  with_items:
+    - {
+        regexp: "^PermitRootLogin",
+        line: "PermitRootLogin no",
+        insertafter: "#PermitRootLogin",
+      }
+    - {
+        regexp: "^PasswordAuthentication ",
+        line: "PasswordAuthentication no",
+        insertafter: "#PasswordAuthentication ",
+      }
+  when: network_utils_setup_sshd|bool
+  notify: restart sshd
+
+- name: Enable X11 Fowarding
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    insertafter: "{{ item.insertafter }}"
+  with_items:
+    - {
+        regexp: "^X11Forwarding ",
+        line: "X11Forwarding yes",
+        insertafter: "#X11Forwarding ",
+      }
+    - {
+        regexp: "^X11UseLocalhost ",
+        line: "X11UseLocalhost no",
+        insertafter: "#X11UseLocalhost ",
+      }
+    - {
+        regexp: "^AcceptEnv ",
+        line: "AcceptEnv LANG LC_* USE_*",
+        insertafter: "#Banner ",
+      }
+  when: helper_x11_enable_forwarding|bool
+  notify: restart sshd
+
+# samba
+- set_fact:
+    network_utils_smb_service: smbd
+    network_utils_iptables_service: netfilter-persistent
+    network_utils_iptables_config: /etc/iptables/rules.v4
+  when: ansible_distribution in apt_distros
+
+- set_fact:
+    network_utils_smb_service: smb
+    network_utils_iptables_service: iptables
+    network_utils_iptables_config: /etc/iptables/iptables.rules
+  when: ansible_distribution in pacman_distros
+
+# smbpasswd -a username
+- name: Install samba
+  include_role:
+    name: pkg-install
+  vars:
+    pkg_name: samba
+  when: network_utils_setup_samba|bool
+
+- name: systemd Enable samba
+  systemd:
+    name: "{{ network_utils_smb_service }}"
+    daemon_reload: true
+    enabled: true
+    state: started
+  when: network_utils_setup_samba|bool
+
+- name: Copy smb.conf
+  copy:
+    src: "{{ network_utils_samba_config }}"
+    dest: /etc/samba/smb.conf
+  notify: restart samba
+  when:
+  - network_utils_setup_samba|bool
+  - network_utils_samba_config != 'none'
+
+- name: Install iptables
+  include_role:
+    name: pkg-install
+  vars:
+    pkg_name: iptables
+    pkg_apt_name:
+    - iptables-persistent
+    - netfilter-persistent
+  when: network_utils_setup_iptables|bool
+
+- name: systemd Enable samba
+  systemd:
+    name: "{{ network_utils_iptables_service }}"
+    daemon_reload: true
+    enabled: true
+    state: started
+  when: network_utils_setup_iptables|bool
+
+- name: Copy iptables.rules
+  template:
+    src: iptables.rules
+    dest: "{{ network_utils_iptables_config }}"
+  notify: restart iptables
+  when: network_utils_setup_iptables|bool
