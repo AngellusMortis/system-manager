@@ -1,29 +1,29 @@
 - name: pacman (WSL) - Download Temporary fakeroot
   get_url:
-    url: http://ftp.debian.org/debian/pool/main/f/fakeroot/fakeroot_1.22.orig.tar.bz2
-    dest: /tmp/fakeroot_1.22.orig.tar.bz2
+    url: "{{ fakeroot_url }}"
+    dest: "/tmp/fakeroot_{{ fakeroot_version }}.orig.tar.gz"
 
 - name: pacman (WSL) - Extract Temporary fakeroot
   unarchive:
-    src: /tmp/fakeroot_1.22.orig.tar.bz2
+    src: "/tmp/fakeroot_{{ fakeroot_version }}.orig.tar.gz"
     dest: /tmp
-    creates: /tmp/fakeroot-1.22
+    creates: "/tmp/fakeroot-{{ fakeroot_version }}"
 
 - name: pacman (WSL) - Configure Temporary fakeroot
   command: "{{ item }}"
   args:
-    chdir: /tmp/fakeroot-1.22
+    chdir: "/tmp/fakeroot-{{ fakeroot_version }}"
     warn: false
-    creates: /tmp/fakeroot-1.22/Makefile
+    creates: "/tmp/fakeroot-{{ fakeroot_version }}/Makefile"
   with_items:
     - ./bootstrap
     - ./configure --prefix=/opt/fakeroot --libdir=/opt/fakeroot/libs --disable-static --with-ipc=tcp
 
 - name: pacman (WSL) - Compile Temporary fakeroot
   make:
-    chdir: /tmp/fakeroot-1.22
+    chdir: "/tmp/fakeroot-{{ fakeroot_version }}"
 
 - name: pacman (WSL) - Install Temporary fakeroot
   make:
-    chdir: /tmp/fakeroot-1.22
+    chdir: "/tmp/fakeroot-{{ fakeroot_version }}"
     target: install
