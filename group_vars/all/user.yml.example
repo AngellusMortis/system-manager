@@ -201,7 +201,7 @@ extra_user_files:
 # - { src: pip.conf, dest: .pip/pip.conf }
 
 # extra arbitary system files to copy
-# set to empty to not copy any
+# set to '[]' to not copy any
 extra_system_files:
 - { src: user/mortis-configs/pam/arch/sudo, dest: /etc/pam.d/sudo }
 - { src: user/mortis-configs/pam/arch/system-login, dest: /etc/pam.d/system-login }
@@ -251,6 +251,7 @@ setup_k8s: false
 setup_gcloud: false
 
 # list of git repos to clone
+# set to '[]' to not clone any
 git_repos:
 # - { url: "git@github.com:AngellusMortis/system-manager.git", dest: dev/system-manager, branch: master }
 
