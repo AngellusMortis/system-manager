@@ -90,14 +90,6 @@
     pkg_name: samba
   when: network_utils_setup_samba|bool
 
-- name: systemd Enable samba
-  systemd:
-    name: "{{ network_utils_smb_service }}"
-    daemon_reload: true
-    enabled: true
-    state: started
-  when: network_utils_setup_samba|bool
-
 - name: Copy smb.conf
   copy:
     src: "{{ network_utils_samba_config }}"
@@ -106,6 +98,14 @@
   when:
   - network_utils_setup_samba|bool
   - network_utils_samba_config != 'none'
+
+- name: systemd Enable samba
+  systemd:
+    name: "{{ network_utils_smb_service }}"
+    daemon_reload: true
+    enabled: true
+    state: started
+  when: network_utils_setup_samba|bool
 
 - name: Install iptables
   include_role:
