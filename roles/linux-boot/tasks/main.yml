@@ -1,3 +1,12 @@
+- name: Install Plymouth
+  include_role:
+    name: pkg-install
+  vars:
+    pkg_name:
+    - plymouth
+    pkg_aur_name:
+    - plymouth
+
 - name: Copy Grub Theme
   copy:
     src: "{{ linux_boot_grub_theme }}"
