@@ -8,4 +8,4 @@ if [[ "$host" == "{{ item['alias'] }}" ]]; then
 fi
 {% endfor %}
 
-env USE_TMUX=false USE_XONSH=false ssh -o SendEnv=USE_TMUX -o SendEnv=USE_XONSH -R{{ helper_gpg_remote_agent }}:{{ helper_gpg_local_agent }} "$host"
+env USE_TMUX=false USE_XONSH=false ssh -A -o SendEnv=USE_TMUX -o SendEnv=USE_XONSH -R{{ helper_gpg_remote_agent }}:{{ helper_gpg_local_agent }} "$host"

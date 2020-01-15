@@ -8,8 +8,8 @@
       - root
   pre_tasks:
     - set_fact:
-        install_extra_packages: "{{ pkg_name or pkg_aur_name }}"
-        install_both: "{{ pkg_name and pkg_aur_name }}"
+        install_extra_packages: "{{ extra_packages|length > 0 or extra_aur_packages|length > 0 }}"
+        install_both: "{{ extra_packages|length > 0 and extra_aur_packages|length > 0 }}"
       tags: [ 'extra' ]
     - set_fact:
         users_to_configure: "{{ [ { 'user': local_user, 'use_tmux': use_tmux } ] }}"

@@ -32,7 +32,7 @@ fi
 {% endfor %}
 
 if [[ $do_debug = true ]]; then
-    env USE_TMUX=false USE_XONSH=false ssh -o SendEnv=USE_TMUX -o SendEnv=USE_XONSH -CAY "$host" "$command" &
+    env USE_TMUX=false USE_XONSH=false ssh -A -o SendEnv=USE_TMUX -o SendEnv=USE_XONSH -CAY "$host" "$command" &
 else
-    env USE_TMUX=false USE_XONSH=false ssh -o SendEnv=USE_TMUX -o SendEnv=USE_XONSH -CAY "$host" "$command" >/dev/null 2>&1 &
+    env USE_TMUX=false USE_XONSH=false ssh -A -o SendEnv=USE_TMUX -o SendEnv=USE_XONSH -CAY "$host" "$command" >/dev/null 2>&1 &
 fi
