@@ -1,0 +1,37 @@
+- name: Set local variables
+  set_fact:
+    linux_extra_install_cron: "{{ linux_extra_crons|length > 0 }}"
+    linux_extra_install_nginx: "{{ linux_extra_letencrypt_email != '' and linux_extra_domains|length > 0 }}"
+
+- name: pacman Install cronie
+  include_role:
+    name: pkg-install
+  vars:
+    pkg_name:
+    - cronie
+    pkg_apt_name:
+    - cron
+  when: linux_extra_install_cron
+
+- name: systemd enable cronie
+  systemd:
+    name: cronie.service
+    enabled: true
+    state: started
+  when:
+  - linux_extra_install_cron
+  - ansible_distribution in pacman_distros
+
+- name: User crons
+  cron:
+    name: "{{ item.name }}"
+    minute: "{{ item.minute }}"
+    hour: "{{ item.hour }}"
+    job: "{{ item.job }}"
+    user: "{{ item.user }}"
+  with_items: "{{ linux_extra_crons }}"
+  when: linux_extra_install_cron
+
+- name: Install nginx
+  include: nginx.yml
+  when: linux_extra_install_nginx|bool

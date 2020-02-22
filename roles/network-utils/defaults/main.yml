@@ -3,4 +3,8 @@ network_utils_setup_sshd: false
 network_utils_setup_samba: false
 network_utils_setup_iptables: false
 network_utils_samba_config: none
+network_utils_setup_nfs: false
+network_utils_nfs_config: none
 network_utils_whitelisted_networks:
+network_utils_whitelisted_tcp_ports: []
+network_utils_whitelisted_udp_ports: []

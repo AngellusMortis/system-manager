@@ -196,6 +196,10 @@ extra_packages: []
 # Set to '[]' to skip installing AUR packages
 extra_aur_packages: []
 
+# Extra systemd services to enable
+# Set to '[]' to skip
+extra_systemd: []
+
 # extra arbitary user directories to make relative to ~
 # set to empty to not create any
 extra_user_dirs:
@@ -204,6 +208,10 @@ extra_user_dirs:
 # set to empty to not copy any
 extra_user_files:
 # - { src: pip.conf, dest: .pip/pip.conf }
+
+# extra arbitary system directories to create
+# set to '[]' to not copy any
+extra_system_dirs: []
 
 # extra arbitary system files to copy
 # set to '[]' to not copy any
@@ -224,13 +232,31 @@ setup_samba: false
 # set to 'none' to not copy one
 samba_config: none
 
+# Install and set up NFS Network Shares
+setup_nfs: false
+
+# path to optional NFS config
+# set to 'none' to not copy one
+nfs_config: none
+
 # Install and setup iptable filewall
 setup_iptables: false
 
 # IP address or network range (CIDR) of IP addresses without restrictions
-# set empty to not have any
-iptables_whitelisted_networks:
+# set to '[]' to not have any
+iptables_whitelisted_networks: []
 
+# TCP Ports to whitelist
+# set to '[]' to not have any
+iptables_whitelisted_tcp_ports: []
+# - { port: 22, source: 1.2.3.4 } # port from a specific source
+# - { port: 80, source: } # port with no specific source
+
+# UDP Ports to whitelist
+# set to '[]' to not have any
+iptables_whitelisted_udp_ports: []
+# - { port: 22, source: 1.2.3.4 }
+# - { port: 80, source: }
 
 ## Dev Utils Settings
 
@@ -279,3 +305,29 @@ grub_theme: none
 # path must end in /
 # there must be a theme.txt file
 plymouth_theme: none
+
+
+## Crons
+# Crons to set up
+# set to '[]' to skip
+extra_crons: []
+#   - name: 'name of cron'
+#     minute: "0"
+#     hour: "0"
+#     job: "/usr/bin/true"
+#     user: root
+
+## nginx/Let's Encrypt
+
+# email to use for Let's Encrypt certs
+# set to empty to not config nginx/Let's encrypt
+letencrypt_email:
+
+# domains to get SSL certs for
+# set to '[]' to not config nginx/Let's encrypt
+letencrypt_domains: []
+
+# nginx proxies to set up
+# set to '[]' to not config nginx reverse proxies
+nginx_proxies: []
+#  - { domain: 'example.com', ip: '127.0.0.1', port: '8000', type: 'proxy', cors: true, cors_domain: 'example.com', media_root: null, static_root: null, internal: true, stats_ip: null }

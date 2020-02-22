@@ -109,6 +109,30 @@
     state: started
   when: network_utils_setup_samba|bool
 
+- name: Install nfs
+  include_role:
+    name: pkg-install
+  vars:
+    pkg_name: nfs-utils
+  when: network_utils_setup_nfs|bool
+
+- name: Copy smb.conf
+  copy:
+    src: "{{ network_utils_nfs_config }}"
+    dest: /etc/exports
+  notify: restart nfs
+  when:
+  - network_utils_setup_nfs|bool
+  - network_utils_nfs_config != 'none'
+
+- name: systemd Enable nfs
+  systemd:
+    name: nfs-server.service
+    daemon_reload: true
+    enabled: true
+    state: started
+  when: network_utils_setup_nfs|bool
+
 - name: Install iptables
   include_role:
     name: pkg-install

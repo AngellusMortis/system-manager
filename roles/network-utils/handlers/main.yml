@@ -10,6 +10,12 @@
     state: restarted
   when: ansible_system == "Linux"
 
+- name: restart nfs
+  systemd:
+    name: nfs-server.service
+    state: restarted
+  when: ansible_system == "Linux"
+
 - name: restart iptables
   systemd:
     name: iptables

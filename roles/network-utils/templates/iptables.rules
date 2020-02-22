@@ -14,6 +14,9 @@
 ## Localhost
 -A INPUT -i lo -j ACCEPT
 
+# VPN
+-A INPUT -i tun0 -j ACCEPT
+
 # Whitelisted Networks
 {% for network in network_utils_whitelisted_networks %}
 -A INPUT -s {{ network }} -j ACCEPT
@@ -32,6 +35,14 @@
 -A INPUT -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -m conntrack --ctstate NEW -j TCP
 
 ## Ports
+
+{% for tcp_port in network_utils_whitelisted_tcp_ports %}
+-A TCP -p tcp --dport {{ tcp_port.port }} {% if tcp_port.source %}--src {{ tcp_port.source }} {% endif %}-j ACCEPT
+{% endfor %}
+
+{% for udp_port in network_utils_whitelisted_udp_ports %}
+-A UDP -p udp --dport {{ udp_port.port }} {% if udp_port.source %}--src {{ udp_port.source }} {% endif %}-j ACCEPT
+{% endfor %}
 
 # Drop all others
 -A INPUT -p udp -j REJECT --reject-with icmp-port-unreachable

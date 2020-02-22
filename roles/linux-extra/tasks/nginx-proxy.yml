@@ -1,0 +1,10 @@
+- name: Create {{ item.domain }} nginx Log Folder
+  file:
+    name: /var/log/nginx/{{ item.domain }}
+    state: directory
+
+- name: Copy {{ item.domain }} nginx Conf
+  template:
+    src: proxy.conf.j2
+    dest: /etc/nginx/domains/{{ item.domain }}.conf
+  notify: restart nginx

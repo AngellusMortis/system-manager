@@ -1,0 +1,51 @@
+- name: Set local variables
+  set_fact:
+    linux_extra_letencrypt_args: "-d {{ linux_extra_domains | join(' -d ') }}"
+    linux_extra_letencrypt_cert_name: "{{ linux_extra_domains | first }}"
+
+- name: Install nginx
+  include_role:
+    name: pkg-install
+  vars:
+    pkg_name:
+    - nginx
+    - certbot
+    - certbot-nginx
+
+- name: Create letencrypt SSL configs
+  shell: certbot --nginx --agree-tos -m {{ linux_extra_letencrypt_email }} -n
+  args:
+    creates: "/etc/letsencrypt/options-ssl-nginx.conf"
+
+- name: Copy nginx Main Config
+  template:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+
+- name: Create nginx Directories
+  file:
+    name: "{{ item }}"
+    state: directory
+  with_items:
+    - /etc/nginx/common
+    - /etc/nginx/domains
+
+- name: Create SSLCerts
+  shell: "certbot certonly --nginx {{ linux_extra_letencrypt_args }}"
+  args:
+    creates: "/etc/letsencrypt/live/{{ linux_extra_letencrypt_cert_name }}"
+  environment:
+    LANG: en_US.UTF-8
+
+- name: Check for SSLCert renews
+  command: "certbot --nginx renew"
+
+- name: systemd Enable nginx.service
+  systemd:
+    name: nginx.service
+    enabled: true
+    state: started
+
+- name: Configure nginx proxies
+  include: nginx-proxy.yml
+  with_items: "{{ linux_extra_nginx_proxies }}"

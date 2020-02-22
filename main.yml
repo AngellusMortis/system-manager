@@ -128,8 +128,21 @@
       network_utils_setup_sshd: "{{ setup_sshd }}",
       network_utils_setup_samba: "{{ setup_samba }}",
       network_utils_samba_config: "{{ samba_config }}",
+      network_utils_setup_nfs: "{{ setup_nfs }}",
+      network_utils_nfs_config: "{{ nfs_config }}",
       network_utils_setup_iptables: "{{ setup_iptables }}",
       network_utils_whitelisted_networks: "{{ iptables_whitelisted_networks }}",
+      network_utils_whitelisted_tcp_ports: "{{ iptables_whitelisted_tcp_ports }}",
+      network_utils_whitelisted_udp_ports: "{{ iptables_whitelisted_udp_ports }}",
+      tags: [ 'extra' ],
+    }
+
+    - {
+      role: linux-extra,
+      linux_extra_crons: "{{ extra_crons }}",
+      linux_extra_domains: "{{ letencrypt_domains }}",
+      linux_extra_letencrypt_email: "{{ letencrypt_email }}",
+      linux_extra_nginx_proxies: "{{ nginx_proxies }}",
       tags: [ 'extra' ],
     }
 
@@ -145,6 +158,15 @@
       tags: [ 'dev' ],
     }
   tasks:
+    - name: Enable extra systemd units
+      systemd:
+        name: "{{ item }}"
+        daemon_reload: true
+        enabled: true
+        state: started
+      with_items: "{{ extra_systemd }}"
+      tags: [ 'extra' ]
+
     - name: Clone git repos
       git:
         repo: "{{ item.url }}"
@@ -171,6 +193,17 @@
         owner: "{{ local_user }}"
         group: "{{ local_user }}"
       with_items: "{{ extra_user_files }}"
+      tags: [ 'extra' ]
+
+    - name: Create Extra System Dirs
+      file:
+        path: "{{ item.path }}"
+        state: directory
+        recurse: "{{ item.recurse }}"
+        owner: "{{ item.owner }}"
+        group: "{{ item.owner }}"
+        mode: "{{ item.mode }}"
+      with_items: "{{ extra_system_dirs }}"
       tags: [ 'extra' ]
 
     - name: Copy Extra System

@@ -1,0 +1,98 @@
+server {
+    listen {{ item.listen_ip | default("0.0.0.0") }}:443 ssl http2{{ item.listen_extra | default("") }};
+    server_name {{ item.domain }};
+    access_log /var/log/nginx/{{ item.domain }}/access.log;
+    error_log /var/log/nginx/{{ item.domain }}/error.log;
+    keepalive_requests  10;
+    keepalive_timeout   60 60;
+    charset utf-8;
+    client_max_body_size 100M;
+    client_body_buffer_size 128k;
+
+    ssl_certificate /etc/letsencrypt/live/{{ linux_extra_letencrypt_cert_name }}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{{ linux_extra_letencrypt_cert_name }}/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    location / {
+{% if item.type == 'proxy' %}
+        proxy_pass {{ item.protocol | default("http") }}://{{ item.ip }}:{{ item.port }};
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Host $server_name;
+        proxy_set_header X-Forwarded-Server $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_http_version 1.1;
+        proxy_pass_request_headers on;
+        proxy_set_header Connection "keep-alive";
+        proxy_store off;
+        proxy_read_timeout 90;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header    X-Forwarded-Ssl     on;
+        proxy_redirect ~^(http(?:s)?://)([^:/]+)(?::\d+)?(/.*)?$ $1$2:$server_port$3;
+{% elif item.type == 'uwsgi' %}
+        include uwsgi_params;
+        uwsgi_pass unix:/var/run/uwsgi/{{ item.domain }}.sock;
+{% endif %}
+
+{% if item.cors %}
+        if ( $http_origin ~* "{{ item.cors_domain }}" ) {
+            add_header Access-Control-Allow-Origin $http_origin;
+        }
+{% endif %}
+    }
+
+{% if item.media_root is not none %}
+    location /media  {
+        alias {{ item.media_root }};
+    }
+{% endif %}
+{% if item.static_root is not none %}
+    location /static {
+        alias {{ item.static_root }};
+    }
+{% endif %}
+
+{% if item.stats_ip %}
+    location /stub_status {
+        stub_status;
+        allow 127.0.0.1;
+        allow {{ item.stats_ip }};
+        deny all;
+    }
+{% endif %}
+
+{% if item.internal  %}
+    allow 10.8.0.0/16;
+    deny 192.168.0.1;
+    allow 192.168.0.0/21;
+    deny all;
+{% endif %}
+}
+
+server {
+    listen {{ item.listen_ip | default("0.0.0.0") }}:80;
+    server_name {{ item.domain }};
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log;
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+
+    {% if item.stats_ip %}
+    location /stub_status {
+        stub_status;
+        allow 127.0.0.1;
+        allow {{ item.stats_ip }};
+        deny all;
+    }
+    {% endif %}
+
+{% if item.internal %}
+    allow 10.8.0.0/16;
+    deny 192.168.0.1;
+    allow 192.168.0.0/21;
+    deny all;
+{% endif %}
+}
