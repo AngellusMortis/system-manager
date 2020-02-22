@@ -42,8 +42,13 @@ export LS_COLORS='rs=0:di=01;36:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;
 export EDITOR='vim'
 export VISUAL='vim'
 export PATH=$HOME/.bin:$HOME/.local/bin:/usr/local/bin:$PATH
-{% if user_user['use_tmux'] %}
+{% if user_ssh_auth_sock %}
+export SSH_AUTH_SOCK='{{ user_ssh_auth_sock }}'
+{% elif user_user['use_tmux'] %}
 export SSH_AUTH_SOCK=$HOME/.ssh/ssh_auth_sock
+{% endif %}
+{% if user_x11_export_display %}
+export DISPLAY='localhost:0.0'
 {% endif %}
 
 # Coloured man page support

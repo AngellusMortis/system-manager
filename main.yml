@@ -70,7 +70,9 @@
         user_powerline_xonsh_prompt_bg_colors: "{{ powerline_xonsh_prompt_bg_colors }}",
         user_gpg_public_key_ring: "{{ gpg_public_key_ring }}",
         user_ssh_authorized_keys: "{{ ssh_authorized_keys }}",
+        user_ssh_auth_sock: "{{ ssh_auth_sock }}",
         user_configure_nvm: "{{ setup_nodejs }}",
+        user_x11_export_display: "{{ x11_export_display }}",
         tags: [ 'user' ],
       }
 
@@ -87,6 +89,7 @@
       linux_boot_plymouth_theme: "{{ plymouth_theme }}",
       linux_boot_grub_background: "{{ grub_background }}",
       tags: [ 'boot' ],
+      when: customize_boot|bool
     }
 
     - { role: linux-graphics,

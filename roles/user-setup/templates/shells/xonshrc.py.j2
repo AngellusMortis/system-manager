@@ -3,8 +3,13 @@ $LS_COLORS = 'rs=0:di=01;36:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;0
 $EDITOR = "vim"
 $VISUAL = "vim"
 $SHELL_TYPE = "prompt_toolkit"
-{% if user_user['use_tmux'] %}
+{% if user_ssh_auth_sock %}
+$SSH_AUTH_SOCK = '{{ user_ssh_auth_sock }}'
+{% elif user_user['use_tmux'] %}
 $SSH_AUTH_SOCK = $HOME + "/.ssh/ssh_auth_sock"
+{% endif %}
+{% if user_x11_export_display %}
+$DISPLAY = 'localhost:0.0'
 {% endif %}
 
 # path variable

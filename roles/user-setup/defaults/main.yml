@@ -25,4 +25,6 @@ user_powerline_prompt_bg_colors: { root: 'red' }
 user_powerline_xonsh_prompt_bg_colors: { root: 'RED' }
 user_gpg_public_key_ring: none
 user_ssh_authorized_keys: none
+user_ssh_auth_sock: none
+user_x11_export_display: false
 user_configure_nvm: false

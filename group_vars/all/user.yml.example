@@ -9,6 +9,9 @@ gpg_public_key_ring: none
 # SSH authorized keys file (~/.ssh/authorized_keys)
 ssh_authorized_keys: none
 
+# Custom SSH_AUTH_SOCK env variable
+ssh_auth_sock:
+
 # configure the root user as well as the local_user when setting up
 # shells/configs
 configure_root: true
@@ -59,6 +62,8 @@ host_aliases:
 # sshd for this to work
 x11_enable_forwarding: true
 
+# Manually export DISPLAY variable to localhost (useful for WSL)
+x11_export_display: false
 
 ## Shell settings
 
@@ -257,6 +262,9 @@ git_repos:
 
 
 ## Extra Personalization settings
+
+# Customize Boot
+customize_boot: false
 
 # Grub background
 # WARNING: Do NOT set a Grub background and a Grub theme
