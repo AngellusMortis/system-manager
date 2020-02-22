@@ -1,8 +1,10 @@
-- set_fact:
+- name: Set local variables (no Plymouth)
+  set_fact:
     linux_desktop_gdm_service: "gdm"
   when: not linux_desktop_display_manager_use_plymouth|bool
 
-- set_fact:
+- name: Set local variables (Plymouth)
+  set_fact:
     linux_desktop_gdm_service: "gdm-plymouth"
   when: linux_desktop_display_manager_use_plymouth|bool
 

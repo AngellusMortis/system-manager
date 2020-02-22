@@ -1,4 +1,5 @@
-- set_fact:
+- name: Set local variables
+  set_fact:
     linux_desktop_config_nm: "{{ linux_desktop_network_manager_configs and linux_desktop_network_manager_configs != 'none' }}"
 
 - name: Install Network Manager

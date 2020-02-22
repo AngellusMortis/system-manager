@@ -4,7 +4,8 @@
     msg: 'Supported Shell types: {{ user_supported_shells }}'
   with_items: "{{ user_shells }}"
 
-- set_fact:
+- name: Set local variables
+  set_fact:
     user_has_secondary_shell: "{{ user_secondary_shell != 'none' }}"
     user_install_xonsh: "{{ user_shells and 'xonsh' in user_shells }}"
     user_install_bash: "{{ user_shells and 'bash' in user_shells }}"
@@ -28,7 +29,7 @@
     var: user_users
 
 - name: Get python3 Version
-  shell: "python3 --version | sed 's/Python \\([0-9]*.[0-9]*\\).[0-9]/\\1/' | tr -d '\n'"
+  shell: "set -o pipefail && python3 --version | sed 's/Python \\([0-9]*.[0-9]*\\).[0-9]/\\1/' | tr -d '\n'"
   register: py_version
   changed_when: false
 

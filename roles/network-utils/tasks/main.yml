@@ -70,13 +70,15 @@
   notify: restart sshd
 
 # samba
-- set_fact:
+- name: Set local variables
+  set_fact:
     network_utils_smb_service: smbd
     network_utils_iptables_service: netfilter-persistent
     network_utils_iptables_config: /etc/iptables/rules.v4
   when: ansible_distribution in apt_distros
 
-- set_fact:
+- name: Set local variables
+  set_fact:
     network_utils_smb_service: smb
     network_utils_iptables_service: iptables
     network_utils_iptables_config: /etc/iptables/iptables.rules

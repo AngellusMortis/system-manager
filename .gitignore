@@ -1,5 +1,6 @@
 files/user/*
 !files/user/.gitkeep
+host_vars
 
 group_vars/all/user.yml
 

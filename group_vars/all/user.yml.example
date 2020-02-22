@@ -185,11 +185,11 @@ install_nvidia_drivers: false
 extra_ppas:
 
 # Install list of arbitary packages
-# set to empty to not install any
-extra_packages:
+# set to '[]' to not install any
+extra_packages: []
 
-# Set to 'none' to skip installing AUR packages
-extra_aur_packages: none
+# Set to '[]' to skip installing AUR packages
+extra_aur_packages: []
 
 # extra arbitary user directories to make relative to ~
 # set to empty to not create any

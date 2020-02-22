@@ -1,17 +1,21 @@
 - name: Main
   hosts:
     - 127.0.0.1
+    - all
   become: true
   become_flags: "-E"
   vars:
+    ansible_python_interpreter: /usr/bin/python
     users_to_configure:
       - root
   pre_tasks:
-    - set_fact:
+    - name: Set global vars (1)
+      set_fact:
         install_extra_packages: "{{ extra_packages|length > 0 or extra_aur_packages|length > 0 }}"
         install_both: "{{ extra_packages|length > 0 and extra_aur_packages|length > 0 }}"
       tags: [ 'extra' ]
-    - set_fact:
+    - name: Set global vars (2)
+      set_fact:
         users_to_configure: "{{ [ { 'user': local_user, 'use_tmux': use_tmux } ] }}"
         powerline_prompt_bg_colors: "{
           '{{ local_user }}': '{{ powerline_prompt_bg_color }}',
@@ -23,12 +27,14 @@
           }"
       tags: [ 'user' ]
 
-    - set_fact:
+    - name: Set global vars (3)
+      set_fact:
         users_to_configure: "{{ users_to_configure + [ { 'user': 'root', 'use_tmux': false } ] }}"
       when: configure_root|bool
       tags: [ 'user' ]
 
-    - apt_repository:
+    - name: Install extra ppas
+      apt_repository:
         repo: "{{ item }}"
       with_items: "{{ extra_ppas }}"
       when: ansible_distribution in apt_distros

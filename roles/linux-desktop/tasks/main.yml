@@ -16,7 +16,8 @@
     msg: 'Supported Desktop Environments: {{ linux_desktop_supported_environments }}'
   with_items: "{{ linux_desktop_environments }}"
 
-- set_fact:
+- name: Set local variables
+  set_fact:
     linux_desktop_install_kde: "{{ linux_desktop_environments and 'kde' in linux_desktop_environments }}"
     linux_desktop_install_gnome: "{{ linux_desktop_environments and 'gnome' in linux_desktop_environments }}"
     linux_desktop_install_gnome_ubuntu: "{{ linux_desktop_environments and 'gnome-ubuntu' in linux_desktop_environments }}"

@@ -2,3 +2,7 @@
   systemd:
     name: docker.service
     state: restarted
+
+- name: update apt cache
+  apt:
+    update_cache: yes

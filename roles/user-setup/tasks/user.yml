@@ -2,7 +2,8 @@
     var: user_powerline_prompt_bg_colors
     verbosity: 1
 
-- set_fact:
+- name: Set variables
+  set_fact:
     user_configure_git: "{{ user_git_email != 'none' and user_git_name != 'none' }}"
     user_configure_signing: "{{ user_git_signing_key != 'none' }}"
     user_powerline_prompt_bg_color: "{{ user_powerline_prompt_bg_colors[user_user['user']] }}"

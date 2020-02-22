@@ -1,4 +1,5 @@
-- set_fact:
+- name: Set local variables
+  set_fact:
     pkg_use_aur: "{{ pkg_aur_name != 'none' }}"
     pkg_use_apt: "{{ pkg_apt_name != 'none' }}"
 

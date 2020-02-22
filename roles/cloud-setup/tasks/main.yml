@@ -4,7 +4,8 @@
     msg: 'Supported Shell types: {{ cloud_supported_providers }}'
   with_items: "{{ cloud_providers }}"
 
-- set_fact:
+- name: Set local variables
+  set_fact:
     cloud_configure_onedrive: "{{ cloud_onedrive_sync_list and cloud_onedrive_sync_list != 'none' }}"
 
 - name: Configure Users
