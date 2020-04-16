@@ -11,7 +11,7 @@
   pre_tasks:
     - name: Set global vars (1)
       set_fact:
-        install_extra_packages: "{{ extra_packages|length > 0 or extra_aur_packages|length > 0 }}"
+        install_extra_packages: "{{ extra_packages|length > 0 or extra_aur_packages !=extra_aur_packages|length > 0 }}"
         install_both: "{{ extra_packages|length > 0 and extra_aur_packages|length > 0 }}"
       tags: [ 'extra' ]
     - name: Set global vars (2)
@@ -142,7 +142,11 @@
       linux_extra_crons: "{{ extra_crons }}",
       linux_extra_domains: "{{ letencrypt_domains }}",
       linux_extra_letencrypt_email: "{{ letencrypt_email }}",
+      linux_extra_letencrypt_args: "{{ cloudflare_api_token }}",
       linux_extra_nginx_proxies: "{{ nginx_proxies }}",
+      linux_extra_install_pihole: "{{ install_pihole }}",
+      linux_extra_pihole_whitelist: "{{ pihole_whitelist }}",
+      linux_extra_pihole_hosts_file: "{{ dns_hosts }}",
       tags: [ 'extra' ],
     }
 
@@ -195,10 +199,10 @@
       with_items: "{{ extra_user_files }}"
       tags: [ 'extra' ]
 
-    - name: Create Extra System Dirs
+    - name: Create Extra System Files/Dirs
       file:
         path: "{{ item.path }}"
-        state: directory
+        state: "{{ item.state | default('directory') }}"
         recurse: "{{ item.recurse }}"
         owner: "{{ item.owner }}"
         group: "{{ item.owner }}"
@@ -211,4 +215,14 @@
         src: "{{ item.src }}"
         dest: "{{ item.dest }}"
       with_items: "{{ extra_system_files }}"
+      tags: [ 'extra' ]
+
+    - name: Add extra mounts
+      mount:
+        path: "{{ item.path }}"
+        src: "{{ item.src }}"
+        fstype: "{{ item.fstype }}"
+        opts: "{{ item.opts }}"
+        state: present
+      with_items: "{{ extra_mounts }}"
       tags: [ 'extra' ]

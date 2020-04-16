@@ -2,7 +2,9 @@ files/user/*
 !files/user/.gitkeep
 host_vars
 
-group_vars/all/user.yml
+group_vars/*
+!group_vars/all/main.yml
+!group_vars/all/user.yml.example
 
 # Created by https://www.gitignore.io/api/ansible
 # Edit at https://www.gitignore.io/?templates=ansible

@@ -219,6 +219,10 @@ extra_system_files:
 - { src: user/mortis-configs/pam/arch/sudo, dest: /etc/pam.d/sudo }
 - { src: user/mortis-configs/pam/arch/system-login, dest: /etc/pam.d/system-login }
 
+# extra drives to mount
+# set to '[]' to not mount anything
+extra_mounts: []
+
 
 ## Network Utils Settings
 
@@ -331,3 +335,13 @@ letencrypt_domains: []
 # set to '[]' to not config nginx reverse proxies
 nginx_proxies: []
 #  - { domain: 'example.com', ip: '127.0.0.1', port: '8000', type: 'proxy', cors: true, cors_domain: 'example.com', media_root: null, static_root: null, internal: true, stats_ip: null }
+
+## pihole
+install_pihole: false
+
+# list of domains to whitelist for Pihole
+pihole_whitelist: []
+
+# dns hosts file
+# set to '' to skip
+dns_hosts: ''

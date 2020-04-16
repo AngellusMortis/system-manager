@@ -35,3 +35,7 @@
 - name: Install nginx
   include: nginx.yml
   when: linux_extra_install_nginx|bool
+
+- name: Install pihole
+  include: pihole.yml
+  when: linux_extra_install_pihole|bool

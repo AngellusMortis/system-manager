@@ -3,3 +3,12 @@
     name: nginx
     state: reloaded
   when: ansible_system == "Linux"
+
+- name: restart pihole
+  systemd:
+    name: pihole-FTL.service
+    state: restarted
+  when: ansible_system == "Linux"
+
+- name: reload pihole dns
+  command: pihole -a setdns 127.0.0.1#5054,127.0.0.1#5054

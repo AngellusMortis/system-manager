@@ -1,0 +1,77 @@
+- name: Set local variables
+  set_fact:
+    linux_extra_setup_hosts: "{{ linux_extra_pihole_hosts_file != '' }}"
+
+- name: systemd disable systemd-resolved
+  systemd:
+    name: systemd-resolved.service
+    enabled: false
+    state: stopped
+
+- name: Install pihole
+  include_role:
+    name: pkg-install
+  vars:
+    pkg_name:
+    - pi-hole-server
+    pkg_aur_name:
+    - pi-hole-server
+
+- name: Install cloudflared
+  include_role:
+    name: pkg-install
+  vars:
+    pkg_name:
+    - cloudflared
+    pkg_aur_name:
+    - cloudflared-bin
+
+- name: Disable dhcp resolv
+  lineinfile:
+    path: /etc/dhcpcd.conf
+    regexp: '^nohook '
+    line: 'nohook resolv.conf'
+
+- name: Setup DNS
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - { src: dnsmasq.conf, dest: /etc/dnsmasq.conf }
+    - { src: resolv.conf, dest: /etc/resolv.conf }
+    - { src: resolv.dnsmasq.conf, dest: /etc/resolv.dnsmasq.conf }
+    - { src: cloudflared.yml, dest: /etc/cloudflared/cloudflared.yml }
+  notify: restart pihole
+
+- name: Setup hosts
+  copy:
+    src: "{{ linux_extra_pihole_hosts_file }}"
+    dest: "/etc/hosts"
+  when: linux_extra_setup_hosts|bool
+  notify: restart pihole
+
+- name: Enable extra systemd units
+  systemd:
+    name: "{{ item }}"
+    daemon_reload: true
+    enabled: true
+    state: started
+  with_items:
+    - pihole-FTL.service
+    - cloudflared@cloudflared
+
+- name: Configure pihole DNS
+  lineinfile:
+    path: /etc/pihole/setupVars.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - { regexp: '^PIHOLE_DNS_1=', line: 'PIHOLE_DNS_1=127.0.0.1#5054' }
+    - { regexp: '^PIHOLE_DNS_2=', line: 'PIHOLE_DNS_2=127.0.0.1#5054' }
+  notify: reload pihole dns
+
+- name: Whitelist domains
+  command: pihole -w {{ item }}
+  register: whitelist_output
+  changed_when: whitelist_output.stdout is not search("no need to add")
+  with_items: "{{ linux_extra_pihole_whitelist }}"

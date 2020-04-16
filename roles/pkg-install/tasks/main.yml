@@ -1,7 +1,7 @@
 - name: Set local variables
   set_fact:
-    pkg_use_aur: "{{ pkg_aur_name != 'none' }}"
-    pkg_use_apt: "{{ pkg_apt_name != 'none' }}"
+    pkg_use_aur: "{{ pkg_aur_name != 'none' and pkg_aur_name | length > 0 }}"
+    pkg_use_apt: "{{ pkg_apt_name != 'none' and pkg_apt_name | length > 0 }}"
 
 - debug:
     msg:
@@ -9,6 +9,11 @@
     - "pkg_name: '{{ pkg_name }}'"
     - "pkg_aur_name: '{{ pkg_aur_name }}' (use: {{ pkg_use_aur }})"
     - "pkg_aur_builder: '{{ pkg_aur_builder }}'"
+    - "pkg_aur_user: {{ pkg_aur_user }}"
+    - "pkg_use_aur: {{ pkg_use_aur }}"
+    - "pkg_use_apt: {{ pkg_use_apt }}"
+    - "pkg_aur_path: {{ pkg_aur_path }}"
+    - "ansible_distribution: {{ ansible_distribution }}"
     verbosity: 1
 
 - name: pacman - install packages

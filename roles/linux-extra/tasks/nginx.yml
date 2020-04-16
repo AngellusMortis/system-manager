@@ -2,6 +2,33 @@
   set_fact:
     linux_extra_letencrypt_args: "-d {{ linux_extra_domains | join(' -d ') }}"
     linux_extra_letencrypt_cert_name: "{{ linux_extra_domains | first }}"
+    linux_extra_letencrypt_renew_args: "--nginx"
+
+- name: Create Cloudflare credentials file
+  tempfile:
+    state: file
+    suffix: ini
+  changed_when: false
+  when: linux_extra_cloudflare_api_token|bool
+  register: cloudflare_credentials
+
+- name: Write Cloudflare credentials
+  copy:
+    content: "dns_cloudflare_api_token = {{ linux_extra_cloudflare_api_token }}"
+    dest: cloudflare_credentials.path
+  changed_when: false
+  when: linux_extra_cloudflare_api_token|bool
+
+- name: Set Cloudflare Let's Encrypt args
+  set_fact:
+    linux_extra_letencrypt_args: "--dns-cloudflare --dns-cloudflare-credentials {{ cloudflare_credentials.path }} {{ linux_extra_letencrypt_args }}"
+    linux_extra_letencrypt_renew_args: "--dns-cloudflare-credentials {{ cloudflare_credentials.path }}"
+  when: linux_extra_cloudflare_api_token|bool
+
+- name: Set Nginx Let's Encrypt args
+  set_fact:
+    linux_extra_letencrypt_args: "--nginx {{ linux_extra_letencrypt_args }}"
+  when: not linux_extra_cloudflare_api_token|bool
 
 - name: Install nginx
   include_role:
@@ -11,9 +38,10 @@
     - nginx
     - certbot
     - certbot-nginx
+    - certbot-dns-cloudflare
 
 - name: Create letencrypt SSL configs
-  shell: certbot --nginx --agree-tos -m {{ linux_extra_letencrypt_email }} -n
+  shell: certbot --agree-tos -m {{ linux_extra_letencrypt_email }} -n {{ linux_extra_letencrypt_args }}
   args:
     creates: "/etc/letsencrypt/options-ssl-nginx.conf"
 
@@ -38,7 +66,7 @@
     LANG: en_US.UTF-8
 
 - name: Check for SSLCert renews
-  command: "certbot --nginx renew"
+  command: "certbot {{ linux_extra_letencrypt_renew_args }} renew"
 
 - name: systemd Enable nginx.service
   systemd:
@@ -49,3 +77,10 @@
 - name: Configure nginx proxies
   include: nginx-proxy.yml
   with_items: "{{ linux_extra_nginx_proxies }}"
+
+- name: Delete Cloudflare credentials
+  file:
+    path: cloudflare_credentials.path
+    state: absent
+  changed_when: false
+  when: linux_extra_cloudflare_api_token

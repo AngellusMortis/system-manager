@@ -2,3 +2,4 @@ pacman_distros:
   - Archlinux
 apt_distros:
   - Ubuntu
+  - Debian
