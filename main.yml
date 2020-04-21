@@ -142,7 +142,7 @@
       linux_extra_crons: "{{ extra_crons }}",
       linux_extra_domains: "{{ letencrypt_domains }}",
       linux_extra_letencrypt_email: "{{ letencrypt_email }}",
-      linux_extra_letencrypt_args: "{{ cloudflare_api_token }}",
+      linux_extra_cloudflare_api_token: "{{ cloudflare_api_token }}",
       linux_extra_nginx_proxies: "{{ nginx_proxies }}",
       linux_extra_install_pihole: "{{ install_pihole }}",
       linux_extra_pihole_whitelist: "{{ pihole_whitelist }}",

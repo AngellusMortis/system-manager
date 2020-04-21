@@ -7,4 +7,12 @@
   template:
     src: proxy.conf.j2
     dest: /etc/nginx/domains/{{ item.domain }}.conf
+  when: not (item.custom | default(False))
+  notify: restart nginx
+
+- name: Copy Custom {{ item.domain }} nginx Conf
+  copy:
+    src: "{{ item.custom_file }}"
+    dest: /etc/nginx/domains/{{ item.domain }}.conf
+  when: (item.custom | default(False))
   notify: restart nginx

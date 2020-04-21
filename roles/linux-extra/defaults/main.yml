@@ -1,7 +1,7 @@
 linux_extra_crons: []
 linux_extra_domains: []
 linux_extra_letencrypt_email:
-linux_extra_cloudflare_api_token:
+linux_extra_cloudflare_api_token: ''
 linux_extra_install_pihole: false
 linux_extra_pihole_whitelist: []
 linux_extra_pihole_hosts_file: ''

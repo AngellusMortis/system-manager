@@ -24,7 +24,7 @@
     pkg_name:
     - cloudflared
     pkg_aur_name:
-    - cloudflared-bin
+    - cloudflared
 
 - name: Disable dhcp resolv
   lineinfile:
@@ -37,6 +37,7 @@
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
   with_items:
+    - { src: cloudflared@.service, dest: /etc/systemd/system/cloudflared@.service }
     - { src: dnsmasq.conf, dest: /etc/dnsmasq.conf }
     - { src: resolv.conf, dest: /etc/resolv.conf }
     - { src: resolv.dnsmasq.conf, dest: /etc/resolv.dnsmasq.conf }
