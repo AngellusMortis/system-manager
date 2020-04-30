@@ -16,14 +16,20 @@
       tags: [ 'extra' ]
     - name: Set global vars (2)
       set_fact:
-        users_to_configure: "{{ [ { 'user': local_user, 'use_tmux': use_tmux } ] }}"
+        users_to_configure: "{{ [ { 'user': local_user, 'use_tmux': use_tmux } ] + extra_users }}"
         powerline_prompt_bg_colors: "{
           '{{ local_user }}': '{{ powerline_prompt_bg_color }}',
-          'root': '{{ powerline_prompt_bg_color_root }}'
+          'root': '{{ powerline_prompt_bg_color_root }}',
+          {% for user in extra_users %}
+          '{{ user['user'] }}': '{{ powerline_prompt_bg_color }}',
+          {% endfor %}
           }"
         powerline_xonsh_prompt_bg_colors: "{
           '{{ local_user }}': '{{ powerline_xonsh_prompt_bg_color }}',
-          'root': '{{ powerline_xonsh_prompt_bg_color_root }}'
+          'root': '{{ powerline_xonsh_prompt_bg_color_root }}',
+          {% for user in extra_users %}
+          '{{ user['user'] }}': '{{ powerline_prompt_bg_color }}',
+          {% endfor %}
           }"
       tags: [ 'user' ]
 
@@ -60,6 +66,7 @@
         user_shells: "{{ enabled_shells }}",
         user_secondary_shell: "{{ secondary_shell }}",
         user_users: "{{ users_to_configure }}",
+        user_users_create: "{{ extra_users|map(attribute='user')|list }}",
         user_git_email: "{{ git_email }}",
         user_git_name: "{{ git_name }}",
         user_git_signing_key: "{{ git_signing_key }}",
@@ -147,6 +154,7 @@
       linux_extra_install_pihole: "{{ install_pihole }}",
       linux_extra_pihole_whitelist: "{{ pihole_whitelist }}",
       linux_extra_pihole_hosts_file: "{{ dns_hosts }}",
+      linux_extra_npm: "{{ extra_npm }}",
       tags: [ 'extra' ],
     }
 
@@ -162,15 +170,6 @@
       tags: [ 'dev' ],
     }
   tasks:
-    - name: Enable extra systemd units
-      systemd:
-        name: "{{ item }}"
-        daemon_reload: true
-        enabled: true
-        state: started
-      with_items: "{{ extra_systemd }}"
-      tags: [ 'extra' ]
-
     - name: Clone git repos
       git:
         repo: "{{ item.url }}"
@@ -215,6 +214,15 @@
         src: "{{ item.src }}"
         dest: "{{ item.dest }}"
       with_items: "{{ extra_system_files }}"
+      tags: [ 'extra' ]
+
+    - name: Enable extra systemd units
+      systemd:
+        name: "{{ item }}"
+        daemon_reload: true
+        enabled: true
+        state: started
+      with_items: "{{ extra_systemd }}"
       tags: [ 'extra' ]
 
     - name: Add extra mounts

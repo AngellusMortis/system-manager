@@ -134,6 +134,11 @@
     - bash
   when: user_install_bash|bool
 
+- name: Create Users
+  user:
+    name: "{{ item }}"
+  with_items: "{{ user_users_create }}"
+
 - name: Configure Users
   include: user.yml
   with_items: "{{ user_users }}"

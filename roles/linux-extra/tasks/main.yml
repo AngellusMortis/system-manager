@@ -2,6 +2,7 @@
   set_fact:
     linux_extra_install_cron: "{{ linux_extra_crons|length > 0 }}"
     linux_extra_install_nginx: "{{ linux_extra_letencrypt_email != '' and linux_extra_domains|length > 0 }}"
+    linux_extra_install_nodejs: "{{ linux_extra_npm|length > 0 }}"
 
 - name: pacman Install cronie
   include_role:
@@ -39,3 +40,19 @@
 - name: Install pihole
   include: pihole.yml
   when: linux_extra_install_pihole|bool
+
+- name: Install nodejs/npm
+  include_role:
+    name: pkg-install
+  vars:
+    pkg_name:
+    - npm
+    - nodejs
+  when: linux_extra_install_nodejs
+
+- name: Install Extra npm Modules
+  npm:
+    name: "{{ item }}"
+    global: true
+    unsafe_perm: true
+  with_items: "{{ linux_extra_npm }}"

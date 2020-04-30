@@ -3,6 +3,10 @@
 # username of main user you do everything as
 local_user: username
 
+# additional users to create/setup
+extra_users: []
+# - { user: media, use_tmux: false }
+
 # GPG public key ring (~/.gnupg/pubring.kbx)
 gpg_public_key_ring: none
 
@@ -320,6 +324,13 @@ extra_crons: []
 #     hour: "0"
 #     job: "/usr/bin/true"
 #     user: root
+
+
+## NodeJS/NPM
+# Extra NPM packages to install
+# set to '[]' to skip
+extra_npm: []
+
 
 ## nginx/Let's Encrypt
 

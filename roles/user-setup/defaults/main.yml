@@ -15,6 +15,7 @@ user_secondary_shells:
   - none
 user_users:
   - root
+user_users_create: []
 user_git_email: none
 user_git_name: none
 user_git_signing_key: none
