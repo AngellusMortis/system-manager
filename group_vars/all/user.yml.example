@@ -118,6 +118,7 @@ gpg_remote_agent: none
 # WSL specific GPG settings to get Windows 10 GPG Agent in WSL
 # See https://codingnest.com/how-to-use-gpg-with-yubikey-wsl/ for setup
 wsl_npiperelay_path: none
+windows_ssh_auth_sock_path: null
 windows_gpg_agent_path: none
 
 

@@ -36,3 +36,4 @@
     - vim
     - openconnect
     - openvpn
+    - socat

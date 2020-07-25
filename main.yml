@@ -59,6 +59,7 @@
         helper_tmux_copy_script: "{{ use_tmux }}",
         helper_wsl_npiperelay_path: "{{ wsl_npiperelay_path }}",
         helper_windows_gpg_agent_path: "{{ windows_gpg_agent_path }}",
+        helper_windows_ssh_auth_sock_path: "{{ windows_ssh_auth_sock_path }}",
         tags: [ 'core', 'helpers' ] }
 
     - { role: user-setup,

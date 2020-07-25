@@ -5,14 +5,31 @@
 #####
 ## Autorun for the gpg-relay bridge
 ##
-SOCAT_PID_FILE=$HOME/.misc/socat-gpg.pid
+SOCAT_GPG_PID_FILE=$HOME/.misc/socat-gpg.pid
 
 mkdir $HOME/.misc -p
 
-if [[ -f $SOCAT_PID_FILE ]] && kill -0 $(cat $SOCAT_PID_FILE); then
+if [[ -f $SOCAT_GPG_PID_FILE ]] && kill -0 $(cat $SOCAT_GPG_PID_FILE); then
    : # already running
 else
     rm -f "$HOME/.gnupg/S.gpg-agent"
-    (trap "rm $SOCAT_PID_FILE" EXIT; socat UNIX-LISTEN:"$HOME/.gnupg/S.gpg-agent,fork" EXEC:'{{ helper_wsl_npiperelay_path }} -ei -ep -s -a "{{ helper_windows_gpg_agent_path }}"',nofork </dev/null &>/dev/null) &
-    echo $! >$SOCAT_PID_FILE
+    (trap "rm $SOCAT_GPG_PID_FILE" EXIT; socat UNIX-LISTEN:"$HOME/.gnupg/S.gpg-agent,fork" EXEC:'{{ helper_wsl_npiperelay_path }} -ei -ep -s -a "{{ helper_windows_gpg_agent_path }}"',nofork </dev/null &>/dev/null) &
+    echo $! >$SOCAT_GPG_PID_FILE
 fi
+
+{% if helper_windows_ssh_auth_sock_path %}
+#####
+## Autorun for the gpg-relay bridge
+##
+SOCAT_SSH_PID_FILE=$HOME/.misc/socat-ssh.pid
+
+mkdir $HOME/.ssh -p
+
+if [[ -f $SOCAT_SSH_PID_FILE ]] && kill -0 $(cat $SOCAT_SSH_PID_FILE); then
+   : # already running
+else
+    rm -f $HOME/.ssh/wsl-ssh-agent.sock
+    (trap "rm $SOCAT_SSH_PID_FILE" EXIT; socat EXEC:"{{ helper_wsl_npiperelay_path }} {{ helper_windows_ssh_auth_sock_path }}" UNIX-LISTEN:/tmp/wsl2-ssh-agent.sock,unlink-close,unlink-early,fork >/dev/null 2>&1 &
+    echo $! >$SOCAT_SSH_PID_FILE
+fi
+{% endif %}
