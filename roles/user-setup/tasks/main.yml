@@ -141,6 +141,7 @@
 
 - name: Configure Users
   include: user.yml
+  when: "user_user['configure'] | default(True) | bool"
   with_items: "{{ user_users }}"
   loop_control:
     loop_var: user_user
