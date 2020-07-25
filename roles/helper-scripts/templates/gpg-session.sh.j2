@@ -29,7 +29,7 @@ if [[ -f $SOCAT_SSH_PID_FILE ]] && kill -0 $(cat $SOCAT_SSH_PID_FILE); then
    : # already running
 else
     rm -f $HOME/.ssh/wsl-ssh-agent.sock
-    (trap "rm $SOCAT_SSH_PID_FILE" EXIT; socat EXEC:"{{ helper_wsl_npiperelay_path }} {{ helper_windows_ssh_auth_sock_path }}" UNIX-LISTEN:/tmp/wsl2-ssh-agent.sock,unlink-close,unlink-early,fork >/dev/null 2>&1 &
+    (trap "rm $SOCAT_SSH_PID_FILE" EXIT; socat EXEC:"{{ helper_wsl_npiperelay_path }} {{ helper_windows_ssh_auth_sock_path }}" UNIX-LISTEN:/tmp/wsl2-ssh-agent.sock,unlink-close,unlink-early,fork >/dev/null 2>&1) &
     echo $! >$SOCAT_SSH_PID_FILE
 fi
 {% endif %}
