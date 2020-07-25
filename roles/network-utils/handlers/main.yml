@@ -2,22 +2,22 @@
   systemd:
     name: sshd.service
     state: restarted
-  when: ansible_system == "Linux"
+  when: ansible_system == "Linux" and has_systemd
 
 - name: restart samba
   systemd:
     name: "{{ network_utils_smb_service }}"
     state: restarted
-  when: ansible_system == "Linux"
+  when: ansible_system == "Linux" and has_systemd
 
 - name: restart nfs
   systemd:
     name: nfs-server.service
     state: restarted
-  when: ansible_system == "Linux"
+  when: ansible_system == "Linux" and has_systemd
 
 - name: restart iptables
   systemd:
     name: iptables
     state: restarted
-  when: ansible_system == "Linux"
+  when: ansible_system == "Linux" and has_systemd

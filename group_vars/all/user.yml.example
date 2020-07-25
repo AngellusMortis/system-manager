@@ -1,5 +1,8 @@
 ## General Settings
 
+# whether or not machine has systemd (like WSL)
+has_systemd: true
+
 # username of main user you do everything as
 local_user: username
 
