@@ -26,11 +26,11 @@
     pkg_aur_name:
     - cloudflared
 
-- name: Disable dhcp resolv
-  lineinfile:
-    path: /etc/dhcpcd.conf
-    regexp: '^nohook '
-    line: 'nohook resolv.conf'
+# - name: Disable dhcp resolv
+#   lineinfile:
+#     path: /etc/dhcpcd.conf
+#     regexp: '^nohook '
+#     line: 'nohook resolv.conf'
 
 - name: Setup DNS
   template:
@@ -39,7 +39,7 @@
   with_items:
     - { src: cloudflared@.service, dest: /etc/systemd/system/cloudflared@.service }
     - { src: dnsmasq.conf, dest: /etc/dnsmasq.conf }
-    - { src: resolv.conf, dest: /etc/resolv.conf }
+    # - { src: resolv.conf, dest: /etc/resolv.conf }
     - { src: resolv.dnsmasq.conf, dest: /etc/resolv.dnsmasq.conf }
     - { src: cloudflared.yml, dest: /etc/cloudflared/cloudflared.yml }
   notify: restart pihole

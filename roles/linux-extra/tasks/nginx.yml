@@ -42,7 +42,7 @@
     - certbot-dns-cloudflare
 
 - name: Create letencrypt SSL configs
-  shell: certbot --agree-tos -m {{ linux_extra_letencrypt_email }} -n {{ linux_extra_letencrypt_args }}
+  shell: certbot certonly --agree-tos -m {{ linux_extra_letencrypt_email }} -n {{ linux_extra_letencrypt_args }}
   args:
     creates: "/etc/letsencrypt/options-ssl-nginx.conf"
 

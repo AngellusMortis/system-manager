@@ -37,6 +37,7 @@
   - pkg_use_aur|bool
   environment:
     PATH: "{{ pkg_aur_path }}"
+    HOME: "/home/{{ pkg_aur_user }}"
 
 - name: apt - install packages
   apt:
