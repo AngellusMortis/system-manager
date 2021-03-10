@@ -109,7 +109,8 @@
 
 - name: Install xonsh powerline
   pip:
-    name: git+https://github.com/AngellusMortis/xontrib-powerline.git@colors
+    name: xontrib-powerline2
+    # name: git+https://github.com/AngellusMortis/xontrib-powerline.git@colors
     extra_args: --upgrade
     executable: pip3
   when:

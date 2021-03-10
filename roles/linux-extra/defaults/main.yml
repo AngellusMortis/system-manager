@@ -6,3 +6,4 @@ linux_extra_install_pihole: false
 linux_extra_pihole_whitelist: []
 linux_extra_pihole_hosts_file: ''
 linux_extra_npm: []
+linux_extra_install_nginx: false

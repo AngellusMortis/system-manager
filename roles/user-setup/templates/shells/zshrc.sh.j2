@@ -48,7 +48,7 @@ export SSH_AUTH_SOCK='{{ user_ssh_auth_sock }}'
 export SSH_AUTH_SOCK=$HOME/.ssh/ssh_auth_sock
 {% endif %}
 {% if user_x11_export_display %}
-export DISPLAY='localhost:0.0'
+export DISPLAY=$(grep -m 1 nameserver /etc/resolv.conf | awk '{print $2}'):0
 {% endif %}
 
 # Coloured man page support

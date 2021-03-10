@@ -9,7 +9,7 @@ $SSH_AUTH_SOCK = '{{ user_ssh_auth_sock }}'
 $SSH_AUTH_SOCK = $HOME + "/.ssh/ssh_auth_sock"
 {% endif %}
 {% if user_x11_export_display %}
-$DISPLAY = 'localhost:0.0'
+$DISPLAY = $(grep -m 1 nameserver /etc/resolv.conf | awk '{print $2}').strip() + ":0"
 {% endif %}
 
 # path variable
@@ -99,7 +99,7 @@ xontrib load avox
 # xontrib load click_tabcomplete
 xontrib load coreutils
 {% if user_use_powerline %}
-xontrib load powerline
+xontrib load powerline2
 {% endif %}
 xontrib load vox
 # xontrib load vox_tabcomplete
