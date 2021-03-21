@@ -2,6 +2,14 @@
     "segments": {
         "left": [
             {
+                "function": "powerline.segments.common.net.hostname",
+                "priority": 10,
+                "args": {
+                    "only_if_ssh": false,
+                    "exclude_domain": true
+                }
+            },
+            {
                 "function": "powerline.segments.shell.cwd",
                 "priority": 10,
                 "args": {
@@ -9,6 +17,17 @@
                     "use_path_separator": true,
                     "dir_limit_depth": 20
                 }
+            },
+            {
+                "function": "powerline.segments.common.vcs.branch",
+                "priority": 30,
+                "args": {
+                    "status_colors": true
+                }
+            },
+            {
+                "function": "powerline.segments.common.vcs.stash",
+                "priority": 50
             },
             {
                 "function": "powerline.segments.shell.last_status",

@@ -156,6 +156,7 @@
       linux_extra_pihole_whitelist: "{{ pihole_whitelist }}",
       linux_extra_pihole_hosts_file: "{{ dns_hosts }}",
       linux_extra_npm: "{{ extra_npm }}",
+      linux_extra_loki_target: "{{ loki_target }}",
       tags: [ 'extra' ],
     }
 

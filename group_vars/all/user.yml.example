@@ -354,6 +354,9 @@ nginx_proxies: []
 ## pihole
 install_pihole: false
 
+# promtail / Loki setup
+loki_target: ""
+
 # list of domains to whitelist for Pihole
 pihole_whitelist: []
 

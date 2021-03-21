@@ -12,3 +12,9 @@
 
 - name: reload pihole dns
   command: pihole -a setdns 127.0.0.1#5054,127.0.0.1#5054
+
+- name: restart promtail
+  systemd:
+    name: promtail
+    state: restarted
+  when: ansible_system == "Linux"

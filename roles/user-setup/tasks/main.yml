@@ -123,6 +123,9 @@
   vars:
     pkg_name:
     - zsh
+    - zsh-syntax-highlighting
+    - zsh-autosuggestions
+    - zsh-completions
   when: user_install_zsh|bool
 
 # TODO: Integrate: https://github.com/aur-archive/zpython3-git/blob/master/PKGBUILD

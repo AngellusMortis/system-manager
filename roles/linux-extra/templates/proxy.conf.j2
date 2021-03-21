@@ -1,7 +1,7 @@
 server {
     listen {{ item.listen_ip | default("0.0.0.0") }}:443 ssl http2{{ item.listen_extra | default("") }};
     server_name {{ item.domain }};
-    access_log /var/log/nginx/{{ item.domain }}/access.log;
+    access_log /var/log/nginx/{{ item.domain }}/access.log json_analytics;
     error_log /var/log/nginx/{{ item.domain }}/error.log;
     keepalive_requests  10;
     keepalive_timeout   60 60;
@@ -31,7 +31,7 @@ server {
         proxy_set_header Connection "keep-alive";
         proxy_store off;
         proxy_read_timeout 90;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Proto {{ item.proto_header | default("$scheme") }};
         proxy_set_header X-Forwarded-Ssl     on;
         proxy_hide_header Access-Control-Allow-Origin;
         proxy_hide_header X-Frame-Options;

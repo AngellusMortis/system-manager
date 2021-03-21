@@ -3,6 +3,7 @@
     linux_extra_install_cron: "{{ linux_extra_crons|length > 0 }}"
     linux_extra_install_nginx: "{{ linux_extra_letencrypt_email != '' and linux_extra_domains|length > 0 }}"
     linux_extra_install_nodejs: "{{ linux_extra_npm|length > 0 }}"
+    linux_extra_install_promtail: "{{ linux_extra_loki_target != '' }}"
 
 - name: pacman Install cronie
   include_role:
@@ -32,6 +33,10 @@
     user: "{{ item.user }}"
   with_items: "{{ linux_extra_crons }}"
   when: linux_extra_install_cron
+
+- name: Install promtail
+  include: promtail.yml
+  when: linux_extra_install_promtail|bool
 
 - name: Install nginx
   include: nginx.yml

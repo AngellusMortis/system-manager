@@ -67,6 +67,7 @@
     - { src: powerline/shell.json.j2, dest: "~{{ user_user['user'] }}/.config/powerline/themes/shell/default.json" }
     - { src: powerline/colors.json.j2, dest: "~{{ user_user['user'] }}/.config/powerline/colorschemes/shell/default.json" }
     - { src: powerline/tmux-colors.json.j2, dest: "~{{ user_user['user'] }}/.config/powerline/colorschemes/tmux/default.json" }
+    - { src: powerline/vimrc.j2, dest: "~{{ user_user['user'] }}/.vimrc" }
   when: user_use_powerline|bool
 
 - name: Copy xonshrc

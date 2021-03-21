@@ -40,6 +40,7 @@
     - certbot
     - certbot-nginx
     - certbot-dns-cloudflare
+    - gzip
 
 - name: Create letencrypt SSL configs
   shell: certbot certonly --agree-tos -m {{ linux_extra_letencrypt_email }} -n {{ linux_extra_letencrypt_args }}
@@ -50,6 +51,42 @@
   template:
     src: nginx.conf
     dest: /etc/nginx/nginx.conf
+
+- name: Download GeoIP Country Database
+  get_url:
+    url: https://mailfud.org/geoip-legacy/GeoIP.dat.gz
+    dest: /etc/nginx/GeoIP.dat.gz
+  register: geoip_country
+  tags: ['geoip', 'ratelimited']
+
+- name: Extract GeoIP Country Database
+  command: "gzip -kfd /etc/nginx/GeoIP.dat.gz"
+  when: geoip_country.changed
+  tags: ['geoip', 'ratelimited']
+
+- name: Download GeoIP City Database
+  get_url:
+    url: https://mailfud.org/geoip-legacy/GeoIPCity.dat.gz
+    dest: /etc/nginx/GeoIPCity.dat.gz
+  register: geoip_city
+  tags: ['geoip', 'ratelimited']
+
+- name: Extract GeoIP City Database
+  command: "gzip -kfd /etc/nginx/GeoIPCity.dat.gz"
+  when: geoip_country.changed
+  tags: ['geoip', 'ratelimited']
+
+- name: Download GeoIP Org Database
+  get_url:
+    url: https://mailfud.org/geoip-legacy/GeoIPOrg.dat.gz
+    dest: /etc/nginx/GeoIPOrg.dat.gz
+  register: geoip_org
+  tags: ['geoip', 'ratelimited']
+
+- name: Extract GeoIP Org Database
+  command: "gzip -kfd /etc/nginx/GeoIPOrg.dat.gz"
+  when: geoip_org.changed
+  tags: ['geoip', 'ratelimited']
 
 - name: Create nginx Directories
   file:

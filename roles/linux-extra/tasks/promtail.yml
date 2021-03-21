@@ -1,0 +1,18 @@
+- name: Install promtail
+  include_role:
+    name: pkg-install
+  vars:
+    pkg_name:
+    - promtail
+
+- name: Copy promtail Main Config
+  template:
+    src: promtail.yaml.j2
+    dest: /etc/loki/promtail.yaml
+  notify: restart promtail
+
+- name: systemd Enable promtail.service
+  systemd:
+    name: promtail.service
+    enabled: true
+    state: started
