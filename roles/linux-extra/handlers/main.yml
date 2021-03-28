@@ -15,6 +15,18 @@
 
 - name: restart promtail
   systemd:
-    name: promtail
+    name: promtail.service
+    state: restarted
+  when: ansible_system == "Linux"
+
+- name: restart journald
+  systemd:
+    name: systemd-journald.service
+    state: restarted
+  when: ansible_system == "Linux"
+
+- name: restart logrotate
+  systemd:
+    name: logrotate.service
     state: restarted
   when: ansible_system == "Linux"

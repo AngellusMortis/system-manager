@@ -293,6 +293,9 @@ setup_k8s: false
 # setup and install Google Cloud SDK
 setup_gcloud: false
 
+# setup and install Terraform
+setup_terraform: false
+
 # list of git repos to clone
 # set to '[]' to not clone any
 git_repos:

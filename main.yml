@@ -81,6 +81,7 @@
         user_ssh_auth_sock: "{{ ssh_auth_sock }}",
         user_configure_nvm: "{{ setup_nodejs }}",
         user_x11_export_display: "{{ x11_export_display }}",
+        user_setup_terraform: "{{ setup_terraform }}",
         tags: [ 'user' ],
       }
 
@@ -169,6 +170,7 @@
       dev_utils_setup_nodejs: "{{ setup_nodejs }}",
       dev_utils_setup_k8s: "{{ setup_k8s }}",
       dev_utils_setup_gcloud: "{{ setup_gcloud }}",
+      dev_utils_setup_terraform: "{{ setup_terraform }}",
       tags: [ 'dev' ],
     }
   tasks:

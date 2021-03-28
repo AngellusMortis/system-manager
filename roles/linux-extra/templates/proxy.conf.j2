@@ -33,7 +33,6 @@ server {
         proxy_read_timeout 90;
         proxy_set_header X-Forwarded-Proto {{ item.proto_header | default("$scheme") }};
         proxy_set_header X-Forwarded-Ssl     on;
-        proxy_hide_header Access-Control-Allow-Origin;
         proxy_hide_header X-Frame-Options;
         proxy_redirect ~^(http(?:s)?://)([^:/]+)(?::\d+)?(/.*)?$ $1$2:$server_port$3;
 {% elif item.type == 'uwsgi' %}
@@ -42,6 +41,7 @@ server {
 {% endif %}
 
 {% if item.cors %}
+        proxy_hide_header Access-Control-Allow-Origin;
         if ( $http_origin ~* "{{ item.cors_domain }}" ) {
             add_header Access-Control-Allow-Origin $http_origin;
         }

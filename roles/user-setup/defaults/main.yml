@@ -29,3 +29,4 @@ user_ssh_authorized_keys: none
 user_ssh_auth_sock: none
 user_x11_export_display: false
 user_configure_nvm: false
+user_setup_terraform: false

@@ -5,14 +5,41 @@
     pkg_name:
     - promtail
 
+- name: Install logrotate
+  include_role:
+    name: pkg-install
+  vars:
+    pkg_name:
+    - logrotate
+
 - name: Copy promtail Main Config
   template:
     src: promtail.yaml.j2
     dest: /etc/loki/promtail.yaml
   notify: restart promtail
 
-- name: systemd Enable promtail.service
+- name: Create journald.conf.d folder
+  file:
+    path: /etc/systemd/journald.conf.d/
+    state: directory
+
+- name: Copy journald config
+  template:
+    src: journald.conf
+    dest: /etc/systemd/journald.conf.d/00-promail.conf
+  notify: restart journald
+
+- name: Copy logrotate config
+  template:
+    src: logrotate.conf
+    dest: /etc/logrotate.d/00-promail.conf
+  notify: restart logrotate
+
+- name: systemd Enable services
   systemd:
-    name: promtail.service
+    name: "{{ item }}"
     enabled: true
     state: started
+  with_items:
+    - promtail.service
+    - logrotate.service

@@ -47,10 +47,17 @@
   args:
     creates: "/etc/letsencrypt/options-ssl-nginx.conf"
 
+- name: Copy Real IP Config
+  template:
+    src: real-ip-azure-verizon.conf
+    dest: /etc/nginx/real-ip-azure-verizon.conf
+  notify: restart nginx
+
 - name: Copy nginx Main Config
   template:
-    src: nginx.conf
+    src: nginx.conf.j2
     dest: /etc/nginx/nginx.conf
+  notify: restart nginx
 
 - name: Download GeoIP Country Database
   get_url:
@@ -58,6 +65,7 @@
     dest: /etc/nginx/GeoIP.dat.gz
   register: geoip_country
   tags: ['geoip', 'ratelimited']
+  notify: restart nginx
 
 - name: Extract GeoIP Country Database
   command: "gzip -kfd /etc/nginx/GeoIP.dat.gz"
@@ -70,6 +78,7 @@
     dest: /etc/nginx/GeoIPCity.dat.gz
   register: geoip_city
   tags: ['geoip', 'ratelimited']
+  notify: restart nginx
 
 - name: Extract GeoIP City Database
   command: "gzip -kfd /etc/nginx/GeoIPCity.dat.gz"
@@ -82,6 +91,7 @@
     dest: /etc/nginx/GeoIPOrg.dat.gz
   register: geoip_org
   tags: ['geoip', 'ratelimited']
+  notify: restart nginx
 
 - name: Extract GeoIP Org Database
   command: "gzip -kfd /etc/nginx/GeoIPOrg.dat.gz"

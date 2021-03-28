@@ -51,6 +51,19 @@ export SSH_AUTH_SOCK=$HOME/.ssh/ssh_auth_sock
 export DISPLAY=$(grep -m 1 nameserver /etc/resolv.conf | awk '{print $2}'):0
 {% endif %}
 
+#set history size
+export HISTSIZE=10000
+#save history after logout
+export SAVEHIST=10000
+#history file
+export HISTFILE=~/.zhistory
+#append into history file
+setopt INC_APPEND_HISTORY
+#save only one command if 2 common are same and consistent
+setopt HIST_IGNORE_DUPS
+#add timestamp for each entry
+setopt EXTENDED_HISTORY
+
 # Coloured man page support
 # using 'less' env vars (format is '\E[<brightness>;<colour>m')
 export LESS_TERMCAP_mb="\033[01;31m"     # begin blinking
@@ -96,6 +109,11 @@ fi
 if [ "$USE_TMUX" = true ]; then
     tmux-session
 fi
+{% endif %}
+
+{% if user_setup_terraform %}
+autoload -U +X bashcompinit && bashcompinit
+complete -o nospace -C /usr/bin/terraform terraform
 {% endif %}
 
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh

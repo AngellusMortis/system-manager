@@ -26,6 +26,12 @@ http {
     types_hash_max_size 2048;
     types_hash_bucket_size 128;
 
+    map $http_referer $referer_site {
+        ~(?<site>https?:\/\/[^\/]*\/).* $site;
+
+        default "";
+    }
+
     log_format json_analytics escape=json '{'
         '"msec": "$msec", ' # request unixtime in seconds with a milliseconds resolution
         '"connection": "$connection", ' # connection serial number
@@ -45,6 +51,7 @@ http {
         '"body_bytes_sent": "$body_bytes_sent", ' # the number of body bytes exclude headers sent to a client
         '"bytes_sent": "$bytes_sent", ' # the number of bytes sent to a client
         '"http_referer": "$http_referer", ' # HTTP referer
+        '"referer_site": "$referer_site", '
         '"http_user_agent": "$http_user_agent", ' # user agent
         '"http_x_forwarded_for": "$http_x_forwarded_for", ' # http_x_forwarded_for
         '"http_host": "$http_host", ' # the request Host: header
@@ -70,7 +77,9 @@ http {
         '"geoip_region": "$geoip_region",'
         '"geoip_city": "$geoip_city",'
         '"geoip_postal_code": "$geoip_postal_code",'
-        '"geoip_org": "$geoip_org"'
+        '"geoip_org": "$geoip_org",'
+        '"realip_remote_addr": "$realip_remote_addr",'
+        '"realip_remote_port": "$realip_remote_port"'
     '}';
 
     sendfile on;
@@ -80,5 +89,23 @@ http {
 
     server_tokens off;
 
+    include real-ip-azure-verizon.conf;
     include domains/*.conf;
+
+    server {
+        listen 80 default_server;
+        {% if linux_extra_letencrypt_cert_name %}
+        listen 443 ssl default_server;
+        {% endif %}
+        server_name _;
+
+        {% if linux_extra_letencrypt_cert_name %}
+        ssl_certificate /etc/letsencrypt/live/{{ linux_extra_letencrypt_cert_name }}/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/{{ linux_extra_letencrypt_cert_name }}/privkey.pem;
+        include /etc/letsencrypt/options-ssl-nginx.conf;
+        ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+        {% endif %}
+
+        return 403;
+    }
 }

@@ -6,3 +6,4 @@ dev_utils_setup_nodejs: false
 dev_utils_setup_k8s: false
 dev_utils_setup_gcloud: false
 dev_utils_use_nvm: true
+dev_utils_setup_terraform: false
