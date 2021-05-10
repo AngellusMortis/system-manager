@@ -30,3 +30,4 @@ user_ssh_auth_sock: none
 user_x11_export_display: false
 user_configure_nvm: false
 user_setup_terraform: false
+user_ssh_config: null

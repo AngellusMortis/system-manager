@@ -2,46 +2,7 @@
   pacman:
     state: present
     name:
-      # base-devel -fakeroot
-      - autoconf
-      - automake
-      - binutils
-      - bison
-      - file
-      - findutils
-      - flex
-      - gawk
-      - gcc
-      - gettext
-      - grep
-      - groff
-      - gzip
-      - libtool
-      - m4
-      - make
-      - pacman
-      - patch
-      - pkgconf
-      - sed
-      - sudo
-      - systemd
-      - texinfo
-      - util-linux
-      - which
-      - po4a
-      - python-pip
-      - man-db
-      - cifs-utils
-
-- name: pacman - Install fakeroot
-  pacman:
-    state: present
-    name: fakeroot
-  when: ansible_kernel.find('Microsoft') == -1
-
-- name: pacman - WSL Tasks
-  import_tasks: pacman-wsl.yml
-  when: ansible_kernel.find('Microsoft') != -1
+      - base-devel
 
 - name: pacman - Full Upgrade
   pacman:

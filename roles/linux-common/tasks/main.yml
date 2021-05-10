@@ -42,3 +42,4 @@
     - openconnect
     - openvpn
     - socat
+    - openssh

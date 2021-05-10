@@ -11,6 +11,7 @@
     user_wsl_enable_gpg: "{{ wsl_npiperelay_path != 'none' and windows_gpg_agent_path != 'none' }}"
     user_copy_gpg_pub_key_ring: "{{ user_gpg_public_key_ring != 'none' }}"
     user_copy_authorized_keys: "{{ user_ssh_authorized_keys != 'none' }}"
+    user_copy_ssh_config: "{{ user_ssh_config != None }}"
 
 - name: Create user Directories
   file:
@@ -129,3 +130,11 @@
     owner: "{{ user_user['user'] }}"
     group: "{{ user_user['user'] }}"
   when: user_copy_authorized_keys|bool
+
+- name: Copy SSH Config
+  copy:
+    src: "{{ user_ssh_config }}"
+    dest: ~{{ user_user['user'] }}/.ssh/config
+    owner: "{{ user_user['user'] }}"
+    group: "{{ user_user['user'] }}"
+  when: user_copy_ssh_config|bool
