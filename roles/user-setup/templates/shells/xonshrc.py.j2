@@ -1,5 +1,7 @@
 # envs
 $LS_COLORS = 'rs=0:di=01;36:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:'
+$LC_ALL = "en_US.UTF-8"
+$LANG = "en_US.UTF-8"
 $EDITOR = "vim"
 $VISUAL = "vim"
 $SHELL_TYPE = "prompt_toolkit"
@@ -45,7 +47,7 @@ $PATH.insert(0, '~/.nvm/current/bin')
 
 {% if user_use_powerline %}
 # powerline envs
-$PTK_STYLE_OVERRIDES['bottom-toolbar'] = 'noreverse'
+$XONSH_STYLE_OVERRIDES['bottom-toolbar'] = 'noreverse'
 $PL_TOOLBAR = 'who>virtualenv>branch>cwd>full_proc'
 $PL_COLORS = {
     'history': ('WHITE', '#0087af'),
