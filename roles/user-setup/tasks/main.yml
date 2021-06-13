@@ -140,7 +140,8 @@
 
 - name: Create Users
   user:
-    name: "{{ item }}"
+    name: "{{ item.user }}"
+    groups: "{{ item.groups | default('') }}"
   with_items: "{{ user_users_create }}"
 
 - name: Configure Users

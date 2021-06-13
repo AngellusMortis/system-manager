@@ -67,7 +67,7 @@
         user_shells: "{{ enabled_shells }}",
         user_secondary_shell: "{{ secondary_shell }}",
         user_users: "{{ users_to_configure }}",
-        user_users_create: "{{ extra_users|map(attribute='user')|list }}",
+        user_users_create: "{{ extra_users }}",
         user_git_email: "{{ git_email }}",
         user_git_name: "{{ git_name }}",
         user_git_signing_key: "{{ git_signing_key }}",
